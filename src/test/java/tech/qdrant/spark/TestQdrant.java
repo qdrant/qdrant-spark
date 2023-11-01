@@ -22,6 +22,15 @@ public class TestQdrant {
                                 .appName("qdrant-spark")
                                 .getOrCreate();
 
+                String qdrantUrl = System.getenv("QDRANT_URL");
+                // The url cannot be set to null
+                if (qdrantUrl == null) {
+                        qdrantUrl = "http://localhost:6333";
+                }
+
+                // The API key can be null
+                String apiKey = System.getenv("QDRANT_API_KEY");
+
                 List<Row> data = Arrays.asList(
                                 RowFactory.create(1, 1, new float[] { 1.0f, 2.0f, 3.0f }),
                                 RowFactory.create(2, 2, new float[] { 4.0f, 5.0f, 6.0f }));
@@ -34,9 +43,10 @@ public class TestQdrant {
                 Dataset<Row> df = spark.createDataFrame(data, schema);
 
                 df.write().format("tech.qdrant.spark.Qdrant").option("schema", df.schema().json())
-                                .option("collection_name", "witchers")
+                                .option("collection_name", "qdrant-spark")
                                 .option("embedding_field", "embedding")
-                                .option("qdrant_url", "http://localhost:6333")
+                                .option("qdrant_url", qdrantUrl)
+                                .option("api_key", apiKey)
                                 .mode("append")
                                 .save();
                 ;
