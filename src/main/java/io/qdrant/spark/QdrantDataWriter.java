@@ -1,4 +1,4 @@
-package tech.qdrant.spark;
+package io.qdrant.spark;
 
 import java.io.Serializable;
 import java.util.ArrayList;

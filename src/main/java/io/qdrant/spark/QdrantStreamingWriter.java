@@ -1,4 +1,4 @@
-package tech.qdrant.spark;
+package io.qdrant.spark;
 
 import org.apache.spark.sql.connector.write.PhysicalWriteInfo;
 import org.apache.spark.sql.connector.write.WriterCommitMessage;

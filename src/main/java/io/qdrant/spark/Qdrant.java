@@ -1,4 +1,4 @@
-package tech.qdrant.spark;
+package io.qdrant.spark;
 
 import org.apache.spark.sql.sources.DataSourceRegister;
 import org.apache.spark.sql.types.StructType;
@@ -40,7 +40,7 @@ public class Qdrant implements TableProvider, DataSourceRegister {
         return new QdrantCluster(options, schema);
     }
 
-    private void checkRequiredOptions(CaseInsensitiveStringMap options, StructType schema) {
+    void checkRequiredOptions(CaseInsensitiveStringMap options, StructType schema) {
         for (String fieldName : requiredFields) {
             if (!options.containsKey(fieldName)) {
                 throw new IllegalArgumentException(fieldName + " option is required");

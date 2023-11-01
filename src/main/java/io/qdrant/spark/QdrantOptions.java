@@ -1,4 +1,4 @@
-package tech.qdrant.spark;
+package io.qdrant.spark;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -31,8 +31,5 @@ public class QdrantOptions implements Serializable {
             this.retries = Integer.parseInt(options.get("retries"));
         }
 
-        LOG.info(
-                "Qdrant options: URL {}, collection name {}, embedding field {}, id field {}, batch size {}, retries {}",
-                this.qdrantUrl, this.collectionName, this.embeddingField, this.idField, this.batchSize, this.retries);
     }
 }

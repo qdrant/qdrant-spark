@@ -1,4 +1,4 @@
-package tech.qdrant.spark;
+package io.qdrant.spark;
 
 import java.util.Arrays;
 import java.util.List;
@@ -13,7 +13,7 @@ import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 import org.junit.Test;
 
-public class TestQdrant {
+public class TestIntegration {
         @Test
         public void testSparkSession() {
                 SparkSession spark = SparkSession
@@ -42,7 +42,7 @@ public class TestQdrant {
                 });
                 Dataset<Row> df = spark.createDataFrame(data, schema);
 
-                df.write().format("tech.qdrant.spark.Qdrant").option("schema", df.schema().json())
+                df.write().format("io.qdrant.spark.Qdrant").option("schema", df.schema().json())
                                 .option("collection_name", "qdrant-spark")
                                 .option("embedding_field", "embedding")
                                 .option("qdrant_url", qdrantUrl)

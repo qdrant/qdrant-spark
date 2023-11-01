@@ -1,4 +1,4 @@
-package tech.qdrant.spark;
+package io.qdrant.spark;
 
 import java.util.Arrays;
 import java.util.Collections;
