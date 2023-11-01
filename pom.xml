@@ -40,16 +40,6 @@
       <artifactId>spark-sql_2.13</artifactId>
       <version>3.5.0</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.spark</groupId>
-      <artifactId>spark-catalyst_2.13</artifactId>
-      <version>3.5.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.spark</groupId>
-      <artifactId>spark-core_2.13</artifactId>
-      <version>3.5.0</version>
-    </dependency>
   </dependencies>
 
   <build>
