@@ -23,17 +23,18 @@ public class TestQdrant {
                                 .getOrCreate();
 
                 List<Row> data = Arrays.asList(
-                                RowFactory.create(1, "row1", 1),
-                                RowFactory.create(2, "row2", 2));
+                                RowFactory.create(1, 1, new float[] { 1.0f, 2.0f, 3.0f }),
+                                RowFactory.create(2, 2, new float[] { 4.0f, 5.0f, 6.0f }));
                 StructType schema = new StructType(new StructField[] {
                                 new StructField("id", DataTypes.IntegerType, false, Metadata.empty()),
-                                new StructField("name", DataTypes.StringType, true, Metadata.empty()),
-                                new StructField("score", DataTypes.IntegerType, true, Metadata.empty())
+                                new StructField("score", DataTypes.IntegerType, true, Metadata.empty()),
+                                new StructField("embedding", DataTypes.createArrayType(DataTypes.FloatType), true,
+                                                Metadata.empty())
                 });
                 Dataset<Row> df = spark.createDataFrame(data, schema);
 
                 df.write().format("tech.qdrant.spark.Qdrant").option("schema", df.schema().json())
-                                .option("collection_name", 0)
+                                .option("collection_name", "witchers")
                                 .option("embedding_field", "embedding")
                                 .option("qdrant_url", "http://localhost:6333")
                                 .mode("append")

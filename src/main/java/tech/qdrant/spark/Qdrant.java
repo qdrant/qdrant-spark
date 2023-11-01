@@ -6,6 +6,9 @@ import org.apache.spark.sql.util.CaseInsensitiveStringMap;
 import org.apache.spark.sql.connector.catalog.TableProvider;
 import org.apache.spark.sql.connector.catalog.Table;
 import org.apache.spark.sql.connector.expressions.Transform;
+
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class Qdrant implements TableProvider, DataSourceRegister {
@@ -25,8 +28,10 @@ public class Qdrant implements TableProvider, DataSourceRegister {
     @Override
     public StructType inferSchema(CaseInsensitiveStringMap options) {
 
-        checkRequiredOptions(options);
-        return (StructType) StructType.fromJson(options.get("schema"));
+        StructType schema = (StructType) StructType.fromJson(options.get("schema"));
+        checkRequiredOptions(options, schema);
+
+        return schema;
     };
 
     @Override
@@ -35,11 +40,27 @@ public class Qdrant implements TableProvider, DataSourceRegister {
         return new QdrantCluster(options, schema);
     }
 
-    public void checkRequiredOptions(CaseInsensitiveStringMap options) {
+    private void checkRequiredOptions(CaseInsensitiveStringMap options, StructType schema) {
         for (String fieldName : requiredFields) {
             if (!options.containsKey(fieldName)) {
                 throw new IllegalArgumentException(fieldName + " option is required");
             }
+        }
+
+        List<String> fieldNames = Arrays.asList(schema.fieldNames());
+
+        if (options.containsKey("id_field")) {
+            String idField = options.get("id_field").toString();
+
+            if (!fieldNames.contains(idField)) {
+                throw new IllegalArgumentException("id_field option is not present in the schema");
+            }
+        }
+
+        String embeddingField = options.get("embedding_field").toString();
+
+        if (!fieldNames.contains(embeddingField)) {
+            throw new IllegalArgumentException("embedding_field option is not present in the schema");
         }
     }
 }
