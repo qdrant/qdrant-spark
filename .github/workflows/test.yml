@@ -1,5 +1,5 @@
-name: "Maven Tests"
-on:
+name: Maven Tests
+'on':
   pull_request:
     types:
       - opened
@@ -7,16 +7,16 @@ on:
       - synchronize
       - reopened
 env:
-  QDRANT_URL: ${{ secrets.QDRANT_URL }}
-  QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
+  QDRANT_URL: '${{ secrets.QDRANT_URL }}'
+  QDRANT_API_KEY: '${{ secrets.QDRANT_API_KEY }}'
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-  - uses: actions/checkout@v4
-  - uses: actions/setup-java@v3
-    with:
-      java-version: '17'
-      distribution: 'temurin'
-  - name: Run the Maven tests
-    run: mvn test
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: temurin
+      - name: Run the Maven tests
+        run: mvn test
