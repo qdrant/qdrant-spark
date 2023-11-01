@@ -3,11 +3,7 @@ package io.qdrant.spark;
 import java.io.Serializable;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class QdrantOptions implements Serializable {
-    private final Logger LOG = LoggerFactory.getLogger(QdrantDataWriter.class);
     public String qdrantUrl;
     public String apiKey;
     public String collectionName;
