@@ -1,4 +1,4 @@
-# Qdrant-Spark Connector 💥
+# Qdrant-Spark Connector
 
 [Apache Spark](https://spark.apache.org/) is a distributed computing framework designed for big data processing and analytics. This connector enables [Qdrant](https://qdrant.tech/) to be a storage destination in Spark.
 
@@ -16,6 +16,7 @@ Once the requirements have been satisfied, run the following command in the proj
 ```bash
 mvn package -Passembly
 ```
+
 This will build and store the fat JAR in the `target` directory by default.
 
 ### Maven Central 📚
@@ -55,8 +56,8 @@ To load data into Qdrant, a collection has to be created beforehand with the app
     .save()
 ```
 
-* By default, UUIDs are generated for each row. If you need to use custom IDs, you can do so by setting the `id_field` option.
-* An API key can be set using the `api_key` option to make authenticated requests.
+- By default, UUIDs are generated for each row. If you need to use custom IDs, you can do so by setting the `id_field` option.
+- An API key can be set using the `api_key` option to make authenticated requests.
 
 ## Datatype support 📋
 
@@ -64,17 +65,17 @@ Qdrant supports all the Spark data types, and the appropriate types are mapped b
 
 ## Options 🛠️
 
-| Option | Description     | Required      |
-| :-------- | :------- | :------------|
-| `qdrant_url` | `string` REST URL of the Qdrant instance | ✅ |
-| `collection_name` | `string` Name of the collection to write data into | ✅ |
-| `embedding_field` | `string` Name of the field holding the embeddings | ✅ |
-| `id_field` | `string` Name of the field holding the point IDs | ✅ |
-| `schema` | `string` JSON string of the dataframe schema | ✅ |
-| `mode` | `string` Write mode of the dataframe | ✅ |
-| `batch_size` | `int` Max size of the upload batch. Default: 100 | ❌ |
-| `retries` | `string` Number of upload retries. Default: 3 | ❌ |
-| `api_key` | `string` API key to be sent in the header. Default: null | ❌ |
+| Option            | Description                                              | Required |
+| :---------------- | :------------------------------------------------------- | :------- |
+| `qdrant_url`      | `string` REST URL of the Qdrant instance                 | ✅       |
+| `collection_name` | `string` Name of the collection to write data into       | ✅       |
+| `embedding_field` | `string` Name of the field holding the embeddings        | ✅       |
+| `id_field`        | `string` Name of the field holding the point IDs         | ✅       |
+| `schema`          | `string` JSON string of the dataframe schema             | ✅       |
+| `mode`            | `string` Write mode of the dataframe                     | ✅       |
+| `batch_size`      | `int` Max size of the upload batch. Default: 100         | ❌       |
+| `retries`         | `string` Number of upload retries. Default: 3            | ❌       |
+| `api_key`         | `string` API key to be sent in the header. Default: null | ❌       |
 
 ## LICENSE 📜
 
