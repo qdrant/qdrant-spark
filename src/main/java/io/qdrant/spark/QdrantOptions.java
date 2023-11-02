@@ -3,6 +3,9 @@ package io.qdrant.spark;
 import java.io.Serializable;
 import java.util.Map;
 
+/**
+ * This class represents the options for connecting to a Qdrant instance.
+ */
 public class QdrantOptions implements Serializable {
     public String qdrantUrl;
     public String apiKey;
@@ -12,6 +15,11 @@ public class QdrantOptions implements Serializable {
     public int batchSize = 100;
     public int retries = 3;
 
+    /**
+     * Constructor for QdrantOptions.
+     * 
+     * @param options A map of options for connecting to a Qdrant instance.
+     */
     public QdrantOptions(Map<String, String> options) {
         this.qdrantUrl = options.get("qdrant_url");
         this.collectionName = options.get("collection_name");

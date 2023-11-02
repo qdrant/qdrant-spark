@@ -9,16 +9,32 @@ import okhttp3.*;
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * A class that provides methods to interact with Qdrant REST API.
+ */
 public class QdrantRest implements Serializable {
     private final String qdrantUrl;
     private final String apiKey;
     private final Logger LOG = LoggerFactory.getLogger(QdrantRest.class);
 
+    /**
+     * Constructor for QdrantRest class.
+     * 
+     * @param qdrantUrl The URL of the Qdrant instance.
+     * @param apiKey    The API key to authenticate with Qdrant.
+     */
     public QdrantRest(String qdrantUrl, String apiKey) {
         this.qdrantUrl = qdrantUrl;
         this.apiKey = (apiKey != null) ? apiKey : "";
     }
 
+    /**
+     * Uploads a batch of points to a Qdrant collection.
+     * 
+     * @param collectionName The name of the collection to upload the points to.
+     * @param points         The list of points to upload.
+     * @throws Exception If there was an error uploading the batch to Qdrant.
+     */
     public void uploadBatch(String collectionName, List<Point> points) throws Exception {
         Gson gson = new Gson();
         OkHttpClient client = new OkHttpClient();

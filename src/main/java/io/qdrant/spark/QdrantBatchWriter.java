@@ -6,6 +6,12 @@ import org.apache.spark.sql.connector.write.PhysicalWriteInfo;
 import org.apache.spark.sql.connector.write.WriterCommitMessage;
 import org.apache.spark.sql.types.StructType;
 
+/**
+ * QdrantBatchWriter class implements the BatchWrite interface and provides a
+ * factory for creating
+ * QdrantDataWriterFactory instances. It also provides methods for committing or
+ * aborting write operations.
+ */
 public class QdrantBatchWriter implements BatchWrite {
 
     private final QdrantOptions options;

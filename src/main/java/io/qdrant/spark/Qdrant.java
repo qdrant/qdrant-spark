@@ -11,6 +11,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A class that implements the TableProvider and DataSourceRegister interfaces.
+ * Provides methods to infer schema, get table, and check required options.
+ */
 public class Qdrant implements TableProvider, DataSourceRegister {
 
     private final String[] requiredFields = new String[] {
@@ -20,11 +24,22 @@ public class Qdrant implements TableProvider, DataSourceRegister {
             "qdrant_url"
     };
 
+    /**
+     * Returns the short name of the data source.
+     *
+     * @return The short name of the data source.
+     */
     @Override
     public String shortName() {
         return "qdrant";
     }
 
+    /**
+     * Infers the schema of the data source based on the provided options.
+     *
+     * @param options The options used to infer the schema.
+     * @return The inferred schema.
+     */
     @Override
     public StructType inferSchema(CaseInsensitiveStringMap options) {
 
@@ -34,12 +49,29 @@ public class Qdrant implements TableProvider, DataSourceRegister {
         return schema;
     };
 
+    /**
+     * Returns a table for the data source based on the provided schema,
+     * partitioning, and properties.
+     *
+     * @param schema       The schema of the table.
+     * @param partitioning The partitioning of the table.
+     * @param properties   The properties of the table.
+     * @return The table for the data source.
+     */
     @Override
     public Table getTable(StructType schema, Transform[] partitioning, Map<String, String> properties) {
         QdrantOptions options = new QdrantOptions(properties);
         return new QdrantCluster(options, schema);
     }
 
+    /**
+     * Checks if the required options are present in the provided options and if the
+     * id_field and embedding_field
+     * options are present in the provided schema.
+     *
+     * @param options The options to check.
+     * @param schema  The schema to check.
+     */
     void checkRequiredOptions(CaseInsensitiveStringMap options, StructType schema) {
         for (String fieldName : requiredFields) {
             if (!options.containsKey(fieldName)) {
