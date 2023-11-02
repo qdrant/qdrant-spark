@@ -49,8 +49,8 @@ To load data into Qdrant, a collection has to be created beforehand with the app
     .format("io.qdrant.spark.Qdrant")
     .option("qdrant_url", <QDRANT_URL>)
     .option("collection_name", <QDRANT_COLLECTION_NAME>)
-    .option("embedding_field", <EMBEDDING_FIELD_NAME>)
-    .option("schema", dataframe.schema.json())
+    .option("embedding_field", <EMBEDDING_FIELD_NAME>)  # Expected to be a field of type ArrayType(FloatType)
+    .option("schema", <pyspark.sql.DataFrame>.schema.json())
     .mode("append")
     .save()
 ```
