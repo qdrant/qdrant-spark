@@ -14,6 +14,21 @@ import org.apache.spark.sql.types.StructType;
 import org.junit.Test;
 
 public class TestIntegration {
+
+        String qdrantUrl;
+        String apiKey;
+
+        public TestIntegration() {
+                qdrantUrl = System.getenv("QDRANT_URL");
+                // The url cannot be set to null
+                if (qdrantUrl == null) {
+                        qdrantUrl = "http://localhost:6333";
+                }
+
+                // The API key can be null
+                apiKey = System.getenv("QDRANT_API_KEY");
+        }
+
         @Test
         public void testSparkSession() {
                 SparkSession spark = SparkSession
@@ -21,15 +36,6 @@ public class TestIntegration {
                                 .master("local[1]")
                                 .appName("qdrant-spark")
                                 .getOrCreate();
-
-                String qdrantUrl = System.getenv("QDRANT_URL");
-                // The url cannot be set to null
-                if (qdrantUrl == null) {
-                        qdrantUrl = "http://localhost:6333";
-                }
-
-                // The API key can be null
-                String apiKey = System.getenv("QDRANT_API_KEY");
 
                 List<Row> data = Arrays.asList(
                                 RowFactory.create(1, 1, new float[] { 1.0f, 2.0f, 3.0f }),
@@ -51,4 +57,5 @@ public class TestIntegration {
                                 .save();
                 ;
         }
+
 }
