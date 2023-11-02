@@ -21,7 +21,7 @@ This will build and store the fat JAR in the `target` directory by default.
 
 ### Maven Central 📚
 
-The package will be available at the registry soon.
+For use with Java and Scala projects, the package can be found [here](https://central.sonatype.com/artifact/io.qdrant/spark).
 
 ## Usage 📝
 
