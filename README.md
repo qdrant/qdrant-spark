@@ -63,19 +63,19 @@ To load data into Qdrant, a collection has to be created beforehand with the app
 
 Qdrant supports all the Spark data types, and the appropriate types are mapped based on the provided `schema`.
 
-## Options 🛠️
+## Options and Spark types 🛠️
 
-| Option            | Description                                              | Required |
-| :---------------- | :------------------------------------------------------- | :------- |
-| `qdrant_url`      | `string` REST URL of the Qdrant instance                 | ✅       |
-| `collection_name` | `string` Name of the collection to write data into       | ✅       |
-| `embedding_field` | `string` Name of the field holding the embeddings        | ✅       |
-| `id_field`        | `string` Name of the field holding the point IDs         | ✅       |
-| `schema`          | `string` JSON string of the dataframe schema             | ✅       |
-| `mode`            | `string` Write mode of the dataframe                     | ✅       |
-| `batch_size`      | `int` Max size of the upload batch. Default: 100         | ❌       |
-| `retries`         | `string` Number of upload retries. Default: 3            | ❌       |
-| `api_key`         | `string` API key to be sent in the header. Default: null | ❌       |
+| Option            | Description                                            | DataType               | Required |
+| :---------------- | :----------------------------------------------------- | :--------------------- | :------- |
+| `qdrant_url`      | REST URL of the Qdrant instance                        | `StringType`           | ✅       |
+| `collection_name` | Name of the collection to write data into              | `StringType`           | ✅       |
+| `embedding_field` | Name of the field holding the embeddings               | `ArrayType(FloatType)` | ✅       |
+| `id_field`        | Name of the field holding the point IDs                | `StringType`           | ✅       |
+| `schema`          | JSON string of the dataframe schema                    | `StringType`           | ✅       |
+| `mode`            | Write mode of the dataframe                            | `StringType`           | ✅       |
+| `batch_size`      | Max size of the upload batch. Default: 100             | `IntType`              | ❌       |
+| `retries`         | Number of upload retries. Default: 3                   | `IntType`              | ❌       |
+| `api_key`         | Qdrant API key to be sent in the header. Default: null | `StringType`           | ❌       |
 
 ## LICENSE 📜
 
