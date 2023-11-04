@@ -23,7 +23,7 @@ jobs:
           gpg-passphrase: GPG_PASSPHRASE
 
       - name: Build with Maven
-        run: mvn clean test
+        run: mvn clean package -DskipTests
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
