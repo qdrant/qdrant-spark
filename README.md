@@ -64,17 +64,17 @@ Qdrant supports all the Spark data types, and the appropriate types are mapped b
 
 ## Options and Spark types 🛠️
 
-| Option            | Description                                            | DataType               | Required |
-| :---------------- | :----------------------------------------------------- | :--------------------- | :------- |
-| `qdrant_url`      | REST URL of the Qdrant instance                        | `StringType`           | ✅       |
-| `collection_name` | Name of the collection to write data into              | `StringType`           | ✅       |
-| `embedding_field` | Name of the field holding the embeddings               | `ArrayType(FloatType)` | ✅       |
-| `id_field`        | Name of the field holding the point IDs                | `StringType`           | ✅       |
-| `schema`          | JSON string of the dataframe schema                    | `StringType`           | ✅       |
-| `mode`            | Write mode of the dataframe. Supports "append".                            | `StringType`           | ✅       |
-| `batch_size`      | Max size of the upload batch. Default: 100             | `IntType`              | ❌       |
-| `retries`         | Number of upload retries. Default: 3                   | `IntType`              | ❌       |
-| `api_key`         | Qdrant API key to be sent in the header. Default: null | `StringType`           | ❌       |
+| Option            | Description                                                               | DataType               | Required |
+| :---------------- | :------------------------------------------------------------------------ | :--------------------- | :------- |
+| `qdrant_url`      | REST URL of the Qdrant instance                                           | `StringType`           | ✅       |
+| `collection_name` | Name of the collection to write data into                                 | `StringType`           | ✅       |
+| `embedding_field` | Name of the field holding the embeddings                                  | `ArrayType(FloatType)` | ✅       |
+| `schema`          | JSON string of the dataframe schema                                       | `StringType`           | ✅       |
+| `mode`            | Write mode of the dataframe. Supports "append".                           | `StringType`           | ✅       |
+| `id_field`        | Name of the field holding the point IDs. Default: Generates a random UUId | `StringType`           | ❌       |
+| `batch_size`      | Max size of the upload batch. Default: 100                                | `IntType`              | ❌       |
+| `retries`         | Number of upload retries. Default: 3                                      | `IntType`              | ❌       |
+| `api_key`         | Qdrant API key to be sent in the header. Default: null                    | `StringType`           | ❌       |
 
 ## LICENSE 📜
 
