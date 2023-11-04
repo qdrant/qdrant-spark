@@ -14,7 +14,7 @@ To build the `jar` from source, you need [JDK@17](https://www.oracle.com/java/te
 Once the requirements have been satisfied, run the following command in the project root. 🛠️
 
 ```bash
-mvn package -Passembly
+mvn package -P assembly
 ```
 
 This will build and store the fat JAR in the `target` directory by default.
@@ -72,7 +72,7 @@ Qdrant supports all the Spark data types, and the appropriate types are mapped b
 | `embedding_field` | Name of the field holding the embeddings               | `ArrayType(FloatType)` | ✅       |
 | `id_field`        | Name of the field holding the point IDs                | `StringType`           | ✅       |
 | `schema`          | JSON string of the dataframe schema                    | `StringType`           | ✅       |
-| `mode`            | Write mode of the dataframe                            | `StringType`           | ✅       |
+| `mode`            | Write mode of the dataframe. Supports "append".                            | `StringType`           | ✅       |
 | `batch_size`      | Max size of the upload batch. Default: 100             | `IntType`              | ❌       |
 | `retries`         | Number of upload retries. Default: 3                   | `IntType`              | ❌       |
 | `api_key`         | Qdrant API key to be sent in the header. Default: null | `StringType`           | ❌       |
