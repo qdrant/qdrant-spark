@@ -30,10 +30,9 @@ For use with Java and Scala projects, the package can be found [here](https://ce
 ```python
 from pyspark.sql import SparkSession
 
-spark = (
-    SparkSession.builder.config(
+spark = SparkSession.builder.config(
         "spark.jars",
-        "spark-1.0-SNAPSHOT-jar-with-dependencies.jar",  # specify the downloaded JAR file
+        "spark-jar-with-dependencies.jar",  # specify the downloaded JAR file
     )
     .master("local[*]")
     .appName("qdrant")
@@ -79,4 +78,4 @@ Qdrant supports all the Spark data types, and the appropriate types are mapped b
 
 ## LICENSE 📜
 
-Apache 2.0 © [2023](https://github.com/qdrant/qdrant-spark)
+Apache 2.0 © [2023](https://github.com/qdrant/qdrant-spark/blob/master/LICENSE)
