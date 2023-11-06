@@ -23,6 +23,14 @@ This will build and store the fat JAR in the `target` directory by default.
 
 For use with Java and Scala projects, the package can be found [here](https://central.sonatype.com/artifact/io.qdrant/spark).
 
+```xml
+<dependency>
+    <groupId>io.qdrant</groupId>
+    <artifactId>spark</artifactId>
+    <version>1.6</version>
+</dependency>
+```
+
 ## Usage 📝
 
 ### Creating a Spark session (Single-node) with Qdrant support 🌟
