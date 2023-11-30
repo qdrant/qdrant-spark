@@ -42,7 +42,7 @@ public class QdrantRest implements Serializable {
         String url = qdrantUrl + "/collections/" + collectionName + "/points";
         String json = gson.toJson(requestBody);
         MediaType mediaType = MediaType.get("application/json");
-        RequestBody body = RequestBody.create(json, mediaType);
+        RequestBody body = RequestBody.create(mediaType, json);
 
         Request request = new Request.Builder()
                 .url(url)
