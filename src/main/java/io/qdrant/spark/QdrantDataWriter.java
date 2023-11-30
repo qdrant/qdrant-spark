@@ -55,7 +55,11 @@ public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
                 float[] vector = record.getArray(fieldIndex).toFloatArray();
                 point.vector = vector;
             } else {
-                payload.put(field.name(), record.get(fieldIndex, field.dataType()));
+                if (field.dataType() == org.apache.spark.sql.types.DataTypes.StringType) {
+                    payload.put(field.name(), record.getString(fieldIndex));
+                } else {
+                    payload.put(field.name(), record.get(fieldIndex, field.dataType()));
+                }
             }
         }
 
