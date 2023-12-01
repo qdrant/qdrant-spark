@@ -3,12 +3,17 @@ package io.qdrant.spark;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.spark.sql.catalyst.InternalRow;
+import org.apache.spark.sql.catalyst.util.ArrayData;
 import org.apache.spark.sql.connector.write.DataWriter;
 import org.apache.spark.sql.connector.write.WriterCommitMessage;
 import org.apache.spark.sql.types.StructType;
+import org.apache.spark.sql.types.ArrayType;
+import org.apache.spark.sql.types.DataType;
+import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,11 +60,8 @@ public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
                 float[] vector = record.getArray(fieldIndex).toFloatArray();
                 point.vector = vector;
             } else {
-                if (field.dataType() == org.apache.spark.sql.types.DataTypes.StringType) {
-                    payload.put(field.name(), record.getString(fieldIndex));
-                } else {
-                    payload.put(field.name(), record.get(fieldIndex, field.dataType()));
-                }
+                payload.put(field.name(), convertToJavaType(record, field, fieldIndex));
+
             }
         }
 
@@ -107,6 +109,84 @@ public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
 
     @Override
     public void close() {
+    }
+
+    private Object convertToJavaType(InternalRow record, StructField field, int fieldIndex) {
+        DataType dataType = field.dataType();
+
+        if (dataType == DataTypes.StringType) {
+            return record.getString(fieldIndex);
+        } else if (dataType == DataTypes.IntegerType) {
+            return record.getInt(fieldIndex);
+        } else if (dataType == DataTypes.LongType) {
+            return record.getLong(fieldIndex);
+        } else if (dataType == DataTypes.FloatType) {
+            return record.getFloat(fieldIndex);
+        } else if (dataType == DataTypes.DoubleType) {
+            return record.getDouble(fieldIndex);
+        } else if (dataType == DataTypes.BooleanType) {
+            return record.getBoolean(fieldIndex);
+        } else if (dataType == DataTypes.DateType || dataType == DataTypes.TimestampType) {
+            return record.getString(fieldIndex);
+        } else if (dataType instanceof ArrayType) {
+            ArrayType arrayType = (ArrayType) dataType;
+            ArrayData arrayData = record.getArray(fieldIndex);
+            return convertArrayToJavaType(arrayData, arrayType.elementType());
+        } else if (dataType instanceof StructType) {
+            StructType structType = (StructType) dataType;
+            InternalRow structData = record.getStruct(fieldIndex, structType.fields().length);
+            return convertStructToJavaType(structData, structType);
+        }
+
+        // Fall back to the generic get method
+        // TODO: Add explicit parsings for other data types like maps
+        return record.get(fieldIndex, dataType);
+    }
+
+    private Object convertArrayToJavaType(ArrayData arrayData, DataType elementType) {
+        if (elementType == DataTypes.IntegerType) {
+            return arrayData.toIntArray();
+        } else if (elementType == DataTypes.FloatType) {
+            return arrayData.toFloatArray();
+        } else if (elementType == DataTypes.ShortType) {
+            return arrayData.toShortArray();
+        } else if (elementType == DataTypes.ByteType) {
+            return arrayData.toByteArray();
+        } else if (elementType == DataTypes.DoubleType) {
+            return arrayData.toDoubleArray();
+        } else if (elementType == DataTypes.LongType) {
+            return arrayData.toLongArray();
+        } else if (elementType == DataTypes.BooleanType) {
+            return arrayData.toBooleanArray();
+        } else if (elementType == DataTypes.StringType) {
+            int length = arrayData.numElements();
+            String[] result = new String[length];
+            for (int i = 0; i < length; i++) {
+                result[i] = arrayData.getUTF8String(i).toString();
+            }
+            return result;
+        } else if (elementType instanceof StructType) {
+            StructType structType = (StructType) elementType;
+            int length = arrayData.numElements();
+            Object[] result = new Object[length];
+            for (int i = 0; i < length; i++) {
+                InternalRow structData = arrayData.getStruct(i, structType.fields().length);
+                result[i] = convertStructToJavaType(structData, structType);
+            }
+            return result;
+
+        } else {
+            throw new UnsupportedOperationException("Unsupported array type");
+        }
+    }
+
+    private Object convertStructToJavaType(InternalRow structData, StructType structType) {
+        Map<String, Object> result = new HashMap<>();
+        for (int i = 0; i < structType.fields().length; i++) {
+            StructField structField = structType.fields()[i];
+            result.put(structField.name(), convertToJavaType(structData, structField, i));
+        }
+        return result;
     }
 }
 

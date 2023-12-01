@@ -38,13 +38,28 @@ public class TestIntegration {
                                 .getOrCreate();
 
                 List<Row> data = Arrays.asList(
-                                RowFactory.create(1, 1, new float[] { 1.0f, 2.0f, 3.0f }),
-                                RowFactory.create(2, 2, new float[] { 4.0f, 5.0f, 6.0f }));
+                                RowFactory.create(1, 1, new float[] { 1.0f, 2.0f, 3.0f }, "John Doe", new String[] {
+                                                "Hello", "Hi" }, RowFactory.create(99, "AnotherNestedStruct")),
+                                RowFactory.create(2, 2, new float[] { 4.0f, 5.0f, 6.0f }, "Jane Doe",
+                                                new String[] { "Bonjour", "Salut" },
+                                                RowFactory.create(99, "AnotherNestedStruct")));
+
+                StructType structType = new StructType(new StructField[] {
+                                new StructField("nested_id", DataTypes.IntegerType, false, Metadata.empty()),
+                                new StructField("nested_value", DataTypes.StringType, false, Metadata.empty())
+                });
+
                 StructType schema = new StructType(new StructField[] {
                                 new StructField("id", DataTypes.IntegerType, false, Metadata.empty()),
                                 new StructField("score", DataTypes.IntegerType, true, Metadata.empty()),
                                 new StructField("embedding", DataTypes.createArrayType(DataTypes.FloatType), true,
+                                                Metadata.empty()),
+                                new StructField("name", DataTypes.StringType, true, Metadata.empty()),
+                                new StructField("greetings", DataTypes.createArrayType(DataTypes.StringType), true,
+                                                Metadata.empty()),
+                                new StructField("struct_data", structType, true,
                                                 Metadata.empty())
+
                 });
                 Dataset<Row> df = spark.createDataFrame(data, schema);
 
