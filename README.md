@@ -27,7 +27,7 @@ For use with Java and Scala projects, the package can be found [here](https://ce
 <dependency>
     <groupId>io.qdrant</groupId>
     <artifactId>spark</artifactId>
-    <version>1.7.3</version>
+    <version>1.8.0</version>
 </dependency>
 ```
 
