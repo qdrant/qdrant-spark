@@ -18,10 +18,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A DataWriter implementation that writes data to Qdrant, a vector search engine. This class takes
- * QdrantOptions and StructType as input and writes data to QdrantRest. It implements the DataWriter
- * interface and overrides its methods write, commit, abort and close. It also has a private method
- * write that is used to upload a batch of points to Qdrant. The class uses a Point class to
+ * A DataWriter implementation that writes data to Qdrant, a vector search
+ * engine. This class takes
+ * QdrantOptions and StructType as input and writes data to QdrantRest. It
+ * implements the DataWriter
+ * interface and overrides its methods write, commit, abort and close. It also
+ * has a private method
+ * write that is used to upload a batch of points to Qdrant. The class uses a
+ * Point class to
  * represent a data point and an ArrayList to store the points.
  */
 public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
@@ -97,26 +101,18 @@ public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
   }
 
   @Override
-  public void abort() {}
+  public void abort() {
+  }
 
   @Override
-  public void close() {}
+  public void close() {
+  }
 
   private Object convertToJavaType(InternalRow record, StructField field, int fieldIndex) {
     DataType dataType = field.dataType();
 
     if (dataType == DataTypes.StringType) {
       return record.getString(fieldIndex);
-    } else if (dataType == DataTypes.IntegerType) {
-      return record.getInt(fieldIndex);
-    } else if (dataType == DataTypes.LongType) {
-      return record.getLong(fieldIndex);
-    } else if (dataType == DataTypes.FloatType) {
-      return record.getFloat(fieldIndex);
-    } else if (dataType == DataTypes.DoubleType) {
-      return record.getDouble(fieldIndex);
-    } else if (dataType == DataTypes.BooleanType) {
-      return record.getBoolean(fieldIndex);
     } else if (dataType == DataTypes.DateType || dataType == DataTypes.TimestampType) {
       return record.getString(fieldIndex);
     } else if (dataType instanceof ArrayType) {
@@ -130,26 +126,11 @@ public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
     }
 
     // Fall back to the generic get method
-    // TODO: Add explicit parsings for other data types like maps
     return record.get(fieldIndex, dataType);
   }
 
   private Object convertArrayToJavaType(ArrayData arrayData, DataType elementType) {
-    if (elementType == DataTypes.IntegerType) {
-      return arrayData.toIntArray();
-    } else if (elementType == DataTypes.FloatType) {
-      return arrayData.toFloatArray();
-    } else if (elementType == DataTypes.ShortType) {
-      return arrayData.toShortArray();
-    } else if (elementType == DataTypes.ByteType) {
-      return arrayData.toByteArray();
-    } else if (elementType == DataTypes.DoubleType) {
-      return arrayData.toDoubleArray();
-    } else if (elementType == DataTypes.LongType) {
-      return arrayData.toLongArray();
-    } else if (elementType == DataTypes.BooleanType) {
-      return arrayData.toBooleanArray();
-    } else if (elementType == DataTypes.StringType) {
+    if (elementType == DataTypes.StringType) {
       int length = arrayData.numElements();
       String[] result = new String[length];
       for (int i = 0; i < length; i++) {
@@ -165,9 +146,8 @@ public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
         result[i] = convertStructToJavaType(structData, structType);
       }
       return result;
-
     } else {
-      throw new UnsupportedOperationException("Unsupported array type");
+      return arrayData.toObjectArray(elementType);
     }
   }
 
