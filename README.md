@@ -4,6 +4,9 @@
 
 ## Installation 🚀
 
+> [!IMPORTANT]  
+> Requires Java 17 or above.
+
 ### GitHub Releases 📦
 
 The packaged `jar` file releases can be found [here](https://github.com/qdrant/qdrant-spark/releases).
