@@ -69,6 +69,15 @@ To load data into Qdrant, a collection has to be created beforehand with the app
 - By default, UUIDs are generated for each row. If you need to use custom IDs, you can do so by setting the `id_field` option.
 - An API key can be set using the `api_key` option to make authenticated requests.
 
+## Databricks
+You can use the `qdrant-spark` connector as a library in Databricks to ingest data into Qdrant.
+- Go to the `Libraries` section in your cluster dashboard.
+- Select `Install New` to open the library installation modal.
+- Search for `io.qdrant:spark:1.12` in the Maven packages and click `Install`.
+
+<img width="1064" alt="Screenshot 2024-01-05 at 17 20 01 (1)" src="https://github.com/qdrant/qdrant-spark/assets/46051506/d95773e0-c5c6-4ff2-bf50-8055bb08fd1b">
+
+
 ## Datatype support 📋
 
 Qdrant supports all the Spark data types, and the appropriate types are mapped based on the provided `schema`.
