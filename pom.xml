@@ -6,7 +6,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.qdrant</groupId>
 	<artifactId>spark</artifactId>
-	<version>1.11</version>
+	<version>1.12</version>
 	<name>qdrant-spark</name>
 	<url>https://github.com/qdrant/qdrant-spark</url>
 	<description>An Apache Spark connector for the Qdrant vector database</description>

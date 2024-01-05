@@ -30,7 +30,7 @@ For use with Java and Scala projects, the package can be found [here](https://ce
 <dependency>
     <groupId>io.qdrant</groupId>
     <artifactId>spark</artifactId>
-    <version>1.9.0</version>
+    <version>1.12</version>
 </dependency>
 ```
 
@@ -43,7 +43,7 @@ from pyspark.sql import SparkSession
 
 spark = SparkSession.builder.config(
         "spark.jars",
-        "spark-jar-with-dependencies.jar",  # specify the downloaded JAR file
+        "spark-1.12-jar-with-dependencies.jar",  # specify the downloaded JAR file
     )
     .master("local[*]")
     .appName("qdrant")
