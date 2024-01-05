@@ -6,7 +6,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.qdrant</groupId>
 	<artifactId>spark</artifactId>
-	<version>1.9.0</version>
+	<version>1.10</version>
 	<name>qdrant-spark</name>
 	<url>https://github.com/qdrant/qdrant-spark</url>
 	<description>An Apache Spark connector for the Qdrant vector database</description>
@@ -31,9 +31,8 @@
 	</scm>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>17</maven.compiler.source>
-		<maven.compiler.target>17</maven.compiler.target>
-		<maven.compiler.release>17</maven.compiler.release>
+		<maven.compiler.source>8</maven.compiler.source>
+		<maven.compiler.target>8</maven.compiler.target>
 	</properties>
 	<dependencies>
 		<dependency>

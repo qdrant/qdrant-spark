@@ -161,7 +161,7 @@ public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
   }
 }
 
-class Point {
+class Point implements Serializable {
   public String id;
   public float[] vector;
   public HashMap<String, Object> payload;
