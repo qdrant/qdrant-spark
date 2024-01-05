@@ -90,12 +90,12 @@ public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
       this.qdrantRest.uploadBatch(this.options.collectionName, this.points);
       this.points.clear();
     } catch (Exception e) {
-      LOG.error("Error while uploading batch to Qdrant: {}", e.getMessage());
+      LOG.error("Exception while uploading batch to Qdrant: " + e.getMessage());
       if (retries > 0) {
         LOG.info("Retrying upload batch to Qdrant");
         write(retries - 1);
       } else {
-        LOG.error(e.getMessage());
+        throw new RuntimeException(e);
       }
     }
   }

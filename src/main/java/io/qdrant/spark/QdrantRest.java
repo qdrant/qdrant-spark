@@ -1,23 +1,29 @@
 package io.qdrant.spark;
 
-import com.google.gson.Gson;
+import java.io.IOException;
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
-import okhttp3.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 /** A class that provides methods to interact with Qdrant REST API. */
 public class QdrantRest implements Serializable {
   private final String qdrantUrl;
   private final String apiKey;
-  private final Logger LOG = LoggerFactory.getLogger(QdrantRest.class);
 
   /**
    * Constructor for QdrantRest class.
    *
    * @param qdrantUrl The URL of the Qdrant instance.
-   * @param apiKey The API key to authenticate with Qdrant.
+   * @param apiKey    The API key to authenticate with Qdrant.
    */
   public QdrantRest(String qdrantUrl, String apiKey) {
     this.qdrantUrl = qdrantUrl;
@@ -28,14 +34,19 @@ public class QdrantRest implements Serializable {
    * Uploads a batch of points to a Qdrant collection.
    *
    * @param collectionName The name of the collection to upload the points to.
-   * @param points The list of points to upload.
-   * @throws Exception If there was an error uploading the batch to Qdrant.
+   * @param points         The list of points to upload.
+   * @throws IOException           If there was an error uploading the batch to
+   *                               Qdrant.
+   * @throws RuntimeException      If there was an error uploading the batch to
+   *                               Qdrant.
+   * @throws MalformedURLException If the Qdrant URL is malformed.
    */
-  public void uploadBatch(String collectionName, List<Point> points) throws Exception {
+  public void uploadBatch(String collectionName, List<Point> points)
+      throws IOException, MalformedURLException, RuntimeException {
     Gson gson = new Gson();
     OkHttpClient client = new OkHttpClient();
     RequestData requestBody = new RequestData(points);
-    String url = qdrantUrl + "/collections/" + collectionName + "/points";
+    URL url = new URL(new URL(qdrantUrl), "/collections/" + collectionName + "/points");
     String json = gson.toJson(requestBody);
     MediaType mediaType = MediaType.get("application/json");
     RequestBody body = RequestBody.create(mediaType, json);
@@ -43,11 +54,9 @@ public class QdrantRest implements Serializable {
     Request request = new Request.Builder().url(url).header("api-key", apiKey).put(body).build();
     try (Response response = client.newCall(request).execute()) {
       if (!response.isSuccessful()) {
-        LOG.error("Error uploading batch to Qdrant {}", response.message());
-        throw new Exception(response.message());
+        throw new RuntimeException(response.body().string());
       }
-    } catch (Exception e) {
-      LOG.error("Error uploading batch to Qdrant", e.getMessage());
+    } catch (IOException e) {
       throw e;
     }
   }
