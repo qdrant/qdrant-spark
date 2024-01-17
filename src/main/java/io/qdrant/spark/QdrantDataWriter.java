@@ -1,8 +1,19 @@
 package io.qdrant.spark;
 
+import static io.qdrant.client.PointIdFactory.id;
+import static io.qdrant.client.ValueFactory.list;
+import static io.qdrant.client.ValueFactory.nullValue;
+import static io.qdrant.client.ValueFactory.value;
+import static io.qdrant.client.VectorsFactory.vectors;
+
+import io.qdrant.client.grpc.JsonWithInt.Struct;
+import io.qdrant.client.grpc.JsonWithInt.Value;
+import io.qdrant.client.grpc.Points.PointStruct;
 import java.io.Serializable;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.spark.sql.catalyst.InternalRow;
@@ -18,52 +29,60 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A DataWriter implementation that writes data to Qdrant, a vector search
- * engine. This class takes
- * QdrantOptions and StructType as input and writes data to QdrantRest. It
- * implements the DataWriter
- * interface and overrides its methods write, commit, abort and close. It also
- * has a private method
- * write that is used to upload a batch of points to Qdrant. The class uses a
- * Point class to
+ * A DataWriter implementation that writes data to Qdrant, a vector search engine. This class takes
+ * QdrantOptions and StructType as input and writes data to QdrantRest. It implements the DataWriter
+ * interface and overrides its methods write, commit, abort and close. It also has a private method
+ * write that is used to upload a batch of points to Qdrant. The class uses a Point class to
  * represent a data point and an ArrayList to store the points.
  */
 public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
   private final QdrantOptions options;
   private final StructType schema;
-  private final QdrantRest qdrantRest;
+  private final QdrantGrpc qdrantRest;
   private final Logger LOG = LoggerFactory.getLogger(QdrantDataWriter.class);
 
-  private final ArrayList<Point> points = new ArrayList<>();
+  private final ArrayList<PointStruct> points = new ArrayList<>();
 
-  public QdrantDataWriter(QdrantOptions options, StructType schema) {
+  public QdrantDataWriter(QdrantOptions options, StructType schema) throws Exception {
     this.options = options;
     this.schema = schema;
-    this.qdrantRest = new QdrantRest(this.options.qdrantUrl, this.options.apiKey);
+    this.qdrantRest = new QdrantGrpc(new URL(this.options.qdrantUrl), this.options.apiKey);
   }
 
   @Override
   public void write(InternalRow record) {
-    Point point = new Point();
-    HashMap<String, Object> payload = new HashMap<>();
+    PointStruct.Builder pointBuilder = PointStruct.newBuilder();
+    Map<String, Value> payload = new HashMap<>();
 
     if (this.options.idField == null) {
-      point.id = UUID.randomUUID().toString();
+      pointBuilder.setId(id(UUID.randomUUID()));
     }
     for (StructField field : this.schema.fields()) {
       int fieldIndex = this.schema.fieldIndex(field.name());
       if (this.options.idField != null && field.name().equals(this.options.idField)) {
-        point.id = record.get(fieldIndex, field.dataType()).toString();
+
+        DataType dataType = field.dataType();
+        switch (dataType.typeName()) {
+          case "StringType":
+            pointBuilder.setId(id(UUID.fromString(record.getString(fieldIndex))));
+            break;
+
+          case "IntegerType":
+            pointBuilder.setId(id(record.getInt(fieldIndex)));
+            break;
+          default:
+            break;
+        }
+
       } else if (field.name().equals(this.options.embeddingField)) {
-        float[] vector = record.getArray(fieldIndex).toFloatArray();
-        point.vector = vector;
+        float[] embeddings = record.getArray(fieldIndex).toFloatArray();
+        pointBuilder.setVectors(vectors(embeddings));
       } else {
         payload.put(field.name(), convertToJavaType(record, field, fieldIndex));
       }
     }
 
-    point.payload = payload;
-    this.points.add(point);
+    pointBuilder.putAllPayload(payload);
 
     if (this.points.size() >= this.options.batchSize) {
       this.write(this.options.retries);
@@ -87,7 +106,7 @@ public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
       return;
     }
     try {
-      this.qdrantRest.uploadBatch(this.options.collectionName, this.points);
+      this.qdrantRest.upsert(this.options.collectionName, this.points);
       this.points.clear();
     } catch (Exception e) {
       LOG.error("Exception while uploading batch to Qdrant: " + e.getMessage());
@@ -101,68 +120,62 @@ public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
   }
 
   @Override
-  public void abort() {
-  }
+  public void abort() {}
 
   @Override
-  public void close() {
-  }
+  public void close() {}
 
-  private Object convertToJavaType(InternalRow record, StructField field, int fieldIndex) {
+  private Value convertToJavaType(InternalRow record, StructField field, int fieldIndex) {
     DataType dataType = field.dataType();
 
-    if (dataType == DataTypes.StringType) {
-      return record.getString(fieldIndex);
-    } else if (dataType == DataTypes.DateType || dataType == DataTypes.TimestampType) {
-      return record.getString(fieldIndex);
+    if (dataType == DataTypes.StringType
+        || dataType == DataTypes.DateType
+        || dataType == DataTypes.TimestampType) {
+      return value(record.getString(fieldIndex));
     } else if (dataType instanceof ArrayType) {
       ArrayType arrayType = (ArrayType) dataType;
       ArrayData arrayData = record.getArray(fieldIndex);
-      return convertArrayToJavaType(arrayData, arrayType.elementType());
+      return convertArrayToValue(arrayData, arrayType.elementType());
     } else if (dataType instanceof StructType) {
       StructType structType = (StructType) dataType;
       InternalRow structData = record.getStruct(fieldIndex, structType.fields().length);
-      return convertStructToJavaType(structData, structType);
+      return convertStructToValue(structData, structType);
     }
 
-    // Fall back to the generic get method
-    return record.get(fieldIndex, dataType);
+    return nullValue();
   }
 
-  private Object convertArrayToJavaType(ArrayData arrayData, DataType elementType) {
+  private Value convertArrayToValue(ArrayData arrayData, DataType elementType) {
     if (elementType == DataTypes.StringType) {
       int length = arrayData.numElements();
-      String[] result = new String[length];
+      List<Value> result = new ArrayList<>(length);
       for (int i = 0; i < length; i++) {
-        result[i] = arrayData.getUTF8String(i).toString();
+        result.add(value(arrayData.getUTF8String(i).toString()));
       }
-      return result;
+      return list((result));
     } else if (elementType instanceof StructType) {
       StructType structType = (StructType) elementType;
       int length = arrayData.numElements();
-      Object[] result = new Object[length];
+      List<Value> result = new ArrayList<>(length);
       for (int i = 0; i < length; i++) {
         InternalRow structData = arrayData.getStruct(i, structType.fields().length);
-        result[i] = convertStructToJavaType(structData, structType);
+        result.add(convertStructToValue(structData, structType));
       }
-      return result;
+      return list(result);
     } else {
-      return arrayData.toObjectArray(elementType);
+      return nullValue();
     }
   }
 
-  private Object convertStructToJavaType(InternalRow structData, StructType structType) {
-    Map<String, Object> result = new HashMap<>();
+  private Value convertStructToValue(InternalRow structData, StructType structType) {
+    Map<String, Value> result = new HashMap<>();
     for (int i = 0; i < structType.fields().length; i++) {
       StructField structField = structType.fields()[i];
       result.put(structField.name(), convertToJavaType(structData, structField, i));
     }
-    return result;
-  }
-}
 
-class Point implements Serializable {
-  public String id;
-  public float[] vector;
-  public HashMap<String, Object> payload;
+    Value value =
+        Value.newBuilder().setStructValue(Struct.newBuilder().putAllFields(result)).build();
+    return value;
+  }
 }
