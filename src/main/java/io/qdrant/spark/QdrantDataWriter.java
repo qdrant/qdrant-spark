@@ -4,6 +4,8 @@ import static io.qdrant.client.PointIdFactory.id;
 import static io.qdrant.client.ValueFactory.list;
 import static io.qdrant.client.ValueFactory.nullValue;
 import static io.qdrant.client.ValueFactory.value;
+import static io.qdrant.client.VectorFactory.vector;
+import static io.qdrant.client.VectorsFactory.namedVectors;
 import static io.qdrant.client.VectorsFactory.vectors;
 
 import io.qdrant.client.grpc.JsonWithInt.Struct;
@@ -76,7 +78,11 @@ public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
 
       } else if (field.name().equals(this.options.embeddingField)) {
         float[] embeddings = record.getArray(fieldIndex).toFloatArray();
-        pointBuilder.setVectors(vectors(embeddings));
+        if (options.vectorName != null) {
+          pointBuilder.setVectors(namedVectors(Map.of(options.vectorName, vector(embeddings))));
+        } else {
+          pointBuilder.setVectors(vectors(embeddings));
+        }
       } else {
         payload.put(field.name(), convertToJavaType(record, field, fieldIndex));
       }
