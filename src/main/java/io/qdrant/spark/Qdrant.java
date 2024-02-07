@@ -70,7 +70,7 @@ public class Qdrant implements TableProvider, DataSourceRegister {
   void checkRequiredOptions(CaseInsensitiveStringMap options, StructType schema) {
     for (String fieldName : requiredFields) {
       if (!options.containsKey(fieldName)) {
-        throw new IllegalArgumentException(fieldName + " option is required");
+        throw new IllegalArgumentException(fieldName.concat(" option is required"));
       }
     }
 

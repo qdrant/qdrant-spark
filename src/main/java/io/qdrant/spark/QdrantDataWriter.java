@@ -14,6 +14,7 @@ import io.qdrant.client.grpc.Points.PointStruct;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,7 +82,8 @@ public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
       } else if (field.name().equals(this.options.embeddingField)) {
         float[] embeddings = record.getArray(fieldIndex).toFloatArray();
         if (options.vectorName != null) {
-          pointBuilder.setVectors(namedVectors(Map.of(options.vectorName, vector(embeddings))));
+          pointBuilder.setVectors(
+              namedVectors(Collections.singletonMap(options.vectorName, vector(embeddings))));
         } else {
           pointBuilder.setVectors(vectors(embeddings));
         }
@@ -109,7 +111,9 @@ public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
   }
 
   public void write(int retries) {
-    LOG.info("Upload batch of " + this.points.size() + " points to Qdrant");
+    LOG.info(
+        String.join("Upload batch of ", Integer.toString(this.points.size()), " points to Qdrant"));
+
     if (this.points.isEmpty()) {
       return;
     }
@@ -120,7 +124,7 @@ public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
       qdrant.close();
       this.points.clear();
     } catch (Exception e) {
-      LOG.error("Exception while uploading batch to Qdrant: " + e.getMessage());
+      LOG.error(String.join("Exception while uploading batch to Qdrant: ", e.getMessage()));
       if (retries > 0) {
         LOG.info("Retrying upload batch to Qdrant");
         write(retries - 1);

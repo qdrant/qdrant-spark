@@ -26,7 +26,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers
 public class TestIntegration {
 
-  private static String collectionName = "qdrant-spark-" + UUID.randomUUID().toString();
+  private static String collectionName = "qdrant-spark-".concat(UUID.randomUUID().toString());
   private static int dimension = 4;
   private static int grpcPort = 6334;
   private static Distance distance = Distance.Cosine;
@@ -111,7 +111,8 @@ public class TestIntegration {
             });
     Dataset<Row> df = spark.createDataFrame(data, schema);
 
-    String qdrantUrl = "http://" + qdrant.getHost() + ":" + qdrant.getMappedPort(grpcPort);
+    String qdrantUrl =
+        String.join("http://", qdrant.getHost(), ":", qdrant.getMappedPort(grpcPort).toString());
     df.write()
         .format("io.qdrant.spark.Qdrant")
         .option("schema", df.schema().json())
