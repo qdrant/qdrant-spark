@@ -3,36 +3,60 @@ package io.qdrant.spark;
 import static io.qdrant.client.PointIdFactory.id;
 import static io.qdrant.client.ValueFactory.value;
 import static io.qdrant.client.VectorsFactory.vectors;
-import static org.junit.Assert.*;
 
+import io.qdrant.client.QdrantClient;
+import io.qdrant.client.QdrantGrpcClient;
+import io.qdrant.client.grpc.Collections.Distance;
+import io.qdrant.client.grpc.Collections.VectorParams;
 import io.qdrant.client.grpc.Points.PointStruct;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
+@Testcontainers
 public class TestQdrantGrpc {
-  String qdrantUrl;
-  String apiKey;
+  private static String collectionName = "qdrant-spark-" + UUID.randomUUID().toString();
+  private static int dimension = 3;
+  private static int grpcPort = 6334;
+  private static Distance distance = Distance.Cosine;
 
-  public TestQdrantGrpc() {
-    qdrantUrl = System.getenv("QDRANT_URL");
-    // The url cannot be set to null
-    if (qdrantUrl == null) {
-      qdrantUrl = "http://localhost:6334";
-    }
+  @Rule
+  public final GenericContainer<?> qdrant =
+      new GenericContainer<>("qdrant/qdrant:latest").withExposedPorts(grpcPort);
 
-    // The API key can be null
-    apiKey = System.getenv("QDRANT_API_KEY");
+  @Before
+  public void setup() throws InterruptedException, ExecutionException {
+    qdrant.setWaitStrategy(
+        new LogMessageWaitStrategy()
+            .withRegEx(".*Actix runtime found; starting in Actix runtime.*"));
+
+    QdrantClient client =
+        new QdrantClient(
+            QdrantGrpcClient.newBuilder(qdrant.getHost(), qdrant.getMappedPort(grpcPort), false)
+                .build());
+
+    client
+        .createCollectionAsync(
+            collectionName,
+            VectorParams.newBuilder().setDistance(distance).setSize(dimension).build())
+        .get();
+
+    client.close();
   }
 
   @Test
   public void testUploadBatch() throws Exception {
-    // create a QdrantRest instance with a mock URL and API key
-
-    QdrantGrpc qdrantRest = new QdrantGrpc(new URL(qdrantUrl), apiKey);
+    String qdrantUrl = "http://" + qdrant.getHost() + ":" + qdrant.getMappedPort(grpcPort);
+    QdrantGrpc qdrantGrpc = new QdrantGrpc(new URL(qdrantUrl), null);
 
     List<PointStruct> points = new ArrayList<>();
 
@@ -57,9 +81,8 @@ public class TestQdrantGrpc {
     points.add(point2Builder.build());
 
     // call the uploadBatch method
-    qdrantRest.upsert("qdrant-spark", points);
+    qdrantGrpc.upsert(collectionName, points);
 
-    // assert that the upload was successful
-    assertTrue(true);
+    qdrantGrpc.close();
   }
 }

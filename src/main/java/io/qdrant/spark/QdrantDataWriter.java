@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A DataWriter implementation that writes data to Qdrant, a vector search engine. This class takes
- * QdrantOptions and StructType as input and writes data to QdrantRest. It implements the DataWriter
+ * QdrantOptions and StructType as input and writes data to QdrantGRPC. It implements the DataWriter
  * interface and overrides its methods write, commit, abort and close. It also has a private method
  * write that is used to upload a batch of points to Qdrant. The class uses a Point class to
  * represent a data point and an ArrayList to store the points.
@@ -40,7 +40,8 @@ import org.slf4j.LoggerFactory;
 public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
   private final QdrantOptions options;
   private final StructType schema;
-  private final QdrantGrpc qdrantRest;
+  private final String qdrantUrl;
+  private final String apiKey;
   private final Logger LOG = LoggerFactory.getLogger(QdrantDataWriter.class);
 
   private final ArrayList<PointStruct> points = new ArrayList<>();
@@ -48,7 +49,8 @@ public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
   public QdrantDataWriter(QdrantOptions options, StructType schema) throws Exception {
     this.options = options;
     this.schema = schema;
-    this.qdrantRest = new QdrantGrpc(new URL(this.options.qdrantUrl), this.options.apiKey);
+    this.qdrantUrl = options.qdrantUrl;
+    this.apiKey = options.apiKey;
   }
 
   @Override
@@ -112,7 +114,10 @@ public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
       return;
     }
     try {
-      this.qdrantRest.upsert(this.options.collectionName, this.points);
+      // Instantiate a new QdrantGrpc object since to maintain serializability
+      QdrantGrpc qdrant = new QdrantGrpc(new URL(this.qdrantUrl), this.apiKey);
+      qdrant.upsert(this.options.collectionName, this.points);
+      qdrant.close();
       this.points.clear();
     } catch (Exception e) {
       LOG.error("Exception while uploading batch to Qdrant: " + e.getMessage());

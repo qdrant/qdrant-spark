@@ -51,4 +51,8 @@ public class QdrantGrpc implements Serializable {
     this.client.upsertAsync(collectionName, points).get();
     return;
   }
+
+  public void close() {
+    this.client.close();
+  }
 }
