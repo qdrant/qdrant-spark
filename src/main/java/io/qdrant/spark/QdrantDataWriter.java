@@ -112,7 +112,8 @@ public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
 
   public void write(int retries) {
     LOG.info(
-        String.join("Upload batch of ", Integer.toString(this.points.size()), " points to Qdrant"));
+        String.join(
+            "", "Upload batch of ", Integer.toString(this.points.size()), " points to Qdrant"));
 
     if (this.points.isEmpty()) {
       return;
@@ -124,7 +125,7 @@ public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
       qdrant.close();
       this.points.clear();
     } catch (Exception e) {
-      LOG.error(String.join("Exception while uploading batch to Qdrant: ", e.getMessage()));
+      LOG.error(String.join("", "Exception while uploading batch to Qdrant: ", e.getMessage()));
       if (retries > 0) {
         LOG.info("Retrying upload batch to Qdrant");
         write(retries - 1);
