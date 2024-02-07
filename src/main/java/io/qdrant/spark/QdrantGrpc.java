@@ -3,7 +3,6 @@ package io.qdrant.spark;
 import io.qdrant.client.QdrantClient;
 import io.qdrant.client.QdrantGrpcClient;
 import io.qdrant.client.grpc.Points.PointStruct;
-import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -18,8 +17,9 @@ public class QdrantGrpc implements Serializable {
   /**
    * Constructor for QdrantRest class.
    *
-   * @param qdrantUrl The URL of the Qdrant instance.
+   * @param url The URL of the Qdrant instance.
    * @param apiKey The API key to authenticate with Qdrant.
+   * @throws MalformedURLException If the URL is invalid.
    */
   public QdrantGrpc(URL url, @Nullable String apiKey) throws MalformedURLException {
 
@@ -42,9 +42,8 @@ public class QdrantGrpc implements Serializable {
    *
    * @param collectionName The name of the collection to upload the points to.
    * @param points The list of points to upload.
-   * @throws IOException If there was an error uploading the batch to Qdrant.
-   * @throws RuntimeException If there was an error uploading the batch to Qdrant.
-   * @throws MalformedURLException If the Qdrant URL is malformed.
+   * @throws InterruptedException If there was an error uploading the batch to Qdrant.
+   * @throws ExecutionException If there was an error uploading the batch to Qdrant.
    */
   public void upsert(String collectionName, List<PointStruct> points)
       throws InterruptedException, ExecutionException {

@@ -5,7 +5,7 @@
 ## Installation 🚀
 
 > [!IMPORTANT]  
-> Requires Java 17 or above.
+> Requires Java 8 or above.
 
 ### GitHub Releases 📦
 

@@ -112,7 +112,8 @@ public class TestIntegration {
     Dataset<Row> df = spark.createDataFrame(data, schema);
 
     String qdrantUrl =
-        String.join("http://", qdrant.getHost(), ":", qdrant.getMappedPort(grpcPort).toString());
+        String.join(
+            "", "http://", qdrant.getHost(), ":", qdrant.getMappedPort(grpcPort).toString());
     df.write()
         .format("io.qdrant.spark.Qdrant")
         .option("schema", df.schema().json())

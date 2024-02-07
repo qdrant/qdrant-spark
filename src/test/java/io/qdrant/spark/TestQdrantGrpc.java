@@ -55,7 +55,8 @@ public class TestQdrantGrpc {
   @Test
   public void testUploadBatch() throws Exception {
     String qdrantUrl =
-        String.join("http://", qdrant.getHost(), ":", qdrant.getMappedPort(grpcPort).toString());
+        String.join(
+            "", "http://", qdrant.getHost(), ":", qdrant.getMappedPort(grpcPort).toString());
     QdrantGrpc qdrantGrpc = new QdrantGrpc(new URL(qdrantUrl), null);
 
     List<PointStruct> points = new ArrayList<>();
