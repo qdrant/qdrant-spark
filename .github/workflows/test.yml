@@ -20,5 +20,3 @@ jobs:
           distribution: temurin
       - name: Run the Maven tests
         run: mvn test
-      - name: Generate assembly fat JAR
-        run: mvn clean package -Passembly
