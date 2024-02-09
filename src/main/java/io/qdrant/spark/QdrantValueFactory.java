@@ -12,7 +12,6 @@ import org.apache.spark.sql.catalyst.InternalRow;
 import org.apache.spark.sql.catalyst.util.ArrayData;
 import org.apache.spark.sql.types.ArrayType;
 import org.apache.spark.sql.types.DataType;
-import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 
@@ -38,6 +37,8 @@ public class QdrantValueFactory {
                 return ValueFactory.value(record.getLong(fieldIndex));
             case "boolean":
                 return ValueFactory.value(record.getBoolean(fieldIndex));
+            case "string":
+                return ValueFactory.value(record.getString(fieldIndex));
             case "array":
                 ArrayType arrayType = (ArrayType) dataType;
                 ArrayData arrayData = record.getArray(fieldIndex);
@@ -47,30 +48,65 @@ public class QdrantValueFactory {
                 InternalRow structData = record.getStruct(fieldIndex, structType.fields().length);
                 return value(structData, structType);
             default:
-                return ValueFactory.value(record.getString(fieldIndex));
+                return nullValue();
         }
     }
 
     public static Value convertArrayToValue(ArrayData arrayData, DataType elementType) {
-        if (elementType == DataTypes.StringType) {
-            int length = arrayData.numElements();
-            List<Value> result = new ArrayList<>(length);
-            for (int i = 0; i < length; i++) {
-                result.add(ValueFactory.value(arrayData.getUTF8String(i).toString()));
+
+        List<Value> result = new ArrayList<>();
+        switch (elementType.typeName()) {
+            case "integer": {
+                for (int element : arrayData.toIntArray()) {
+                    result.add(ValueFactory.value(element));
+                }
+                break;
             }
-            return list((result));
-        } else if (elementType instanceof StructType) {
-            StructType structType = (StructType) elementType;
-            int length = arrayData.numElements();
-            List<Value> result = new ArrayList<>(length);
-            for (int i = 0; i < length; i++) {
-                InternalRow structData = arrayData.getStruct(i, structType.fields().length);
-                result.add(value(structData, structType));
+            case "float": {
+                for (float element : arrayData.toFloatArray()) {
+                    result.add(ValueFactory.value(element));
+                }
+                break;
             }
-            return list(result);
-        } else {
-            return nullValue();
+            case "double": {
+                for (double element : arrayData.toDoubleArray()) {
+                    result.add(ValueFactory.value(element));
+                }
+                break;
+            }
+            case "long": {
+                for (long element : arrayData.toLongArray()) {
+                    result.add(ValueFactory.value(element));
+                }
+                break;
+            }
+            case "boolean": {
+                for (boolean element : arrayData.toBooleanArray()) {
+                    result.add(ValueFactory.value(element));
+                }
+                break;
+            }
+            case "string": {
+                int length = arrayData.numElements();
+                for (int i = 0; i < length; i++) {
+                    result.add(ValueFactory.value(arrayData.getUTF8String(i).toString()));
+                }
+                break;
+            }
+            case "struct": {
+                StructType structType = (StructType) elementType;
+                int length = arrayData.numElements();
+                for (int i = 0; i < length; i++) {
+                    InternalRow structData = arrayData.getStruct(i, structType.fields().length);
+                    result.add(value(structData, structType));
+                }
+                break;
+            }
+            default:
+                return nullValue();
         }
+
+        return list(result);
     }
 
     public static Value value(InternalRow structData, StructType structType) {
