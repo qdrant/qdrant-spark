@@ -23,63 +23,60 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
 public class TestQdrantGrpc {
-  private static String collectionName = "qdrant-spark-".concat(UUID.randomUUID().toString());
-  private static int dimension = 3;
-  private static int grpcPort = 6334;
-  private static Distance distance = Distance.Cosine;
+    private static String collectionName = "qdrant-spark-".concat(UUID.randomUUID().toString());
+    private static int dimension = 3;
+    private static int grpcPort = 6334;
+    private static Distance distance = Distance.Cosine;
 
-  @Rule
-  public final GenericContainer<?> qdrant =
-      new GenericContainer<>("qdrant/qdrant:latest").withExposedPorts(grpcPort);
+    @Rule
+    public final GenericContainer<?> qdrant = new GenericContainer<>("qdrant/qdrant:latest").withExposedPorts(grpcPort);
 
-  @Before
-  public void setup() throws InterruptedException, ExecutionException {
-    qdrant.setWaitStrategy(
-        new LogMessageWaitStrategy()
-            .withRegEx(".*Actix runtime found; starting in Actix runtime.*"));
+    @Before
+    public void setup() throws InterruptedException, ExecutionException {
+        qdrant.setWaitStrategy(
+                new LogMessageWaitStrategy()
+                        .withRegEx(".*Actix runtime found; starting in Actix runtime.*"));
 
-    QdrantClient client =
-        new QdrantClient(
-            QdrantGrpcClient.newBuilder(qdrant.getHost(), qdrant.getMappedPort(grpcPort), false)
-                .build());
+        QdrantClient client = new QdrantClient(
+                QdrantGrpcClient.newBuilder(qdrant.getHost(), qdrant.getMappedPort(grpcPort), false)
+                        .build());
 
-    client
-        .createCollectionAsync(
-            collectionName,
-            VectorParams.newBuilder().setDistance(distance).setSize(dimension).build())
-        .get();
+        client
+                .createCollectionAsync(
+                        collectionName,
+                        VectorParams.newBuilder().setDistance(distance).setSize(dimension).build())
+                .get();
 
-    client.close();
-  }
+        client.close();
+    }
 
-  @Test
-  public void testUploadBatch() throws Exception {
-    String qdrantUrl =
-        String.join(
-            "", "http://", qdrant.getHost(), ":", qdrant.getMappedPort(grpcPort).toString());
-    QdrantGrpc qdrantGrpc = new QdrantGrpc(new URL(qdrantUrl), null);
+    @Test
+    public void testUploadBatch() throws Exception {
+        String qdrantUrl = String.join(
+                "", "http://", qdrant.getHost(), ":", qdrant.getMappedPort(grpcPort).toString());
+        QdrantGrpc qdrantGrpc = new QdrantGrpc(new URL(qdrantUrl), null);
 
-    List<PointStruct> points = new ArrayList<>();
+        List<PointStruct> points = new ArrayList<>();
 
-    PointStruct.Builder point1Builder = PointStruct.newBuilder();
-    point1Builder.setId(id(UUID.randomUUID()));
-    point1Builder.setVectors(vectors(1.0f, 2.0f, 3.0f));
+        PointStruct.Builder point1Builder = PointStruct.newBuilder();
+        point1Builder.setId(id(UUID.randomUUID()));
+        point1Builder.setVectors(vectors(1.0f, 2.0f, 3.0f));
 
-    point1Builder.putPayload("name", value("point1 "));
-    point1Builder.putPayload("rand_number", value(53));
-    points.add(point1Builder.build());
+        point1Builder.putPayload("name", value("point1 "));
+        point1Builder.putPayload("rand_number", value(53));
+        points.add(point1Builder.build());
 
-    PointStruct.Builder point2Builder = PointStruct.newBuilder();
-    point2Builder.setId(id(UUID.randomUUID()));
-    point2Builder.setVectors(vectors(4.0f, 5.0f, 6.0f));
+        PointStruct.Builder point2Builder = PointStruct.newBuilder();
+        point2Builder.setId(id(UUID.randomUUID()));
+        point2Builder.setVectors(vectors(4.0f, 5.0f, 6.0f));
 
-    point2Builder.putPayload("name", value("point2"));
-    point2Builder.putPayload("rand_number", value(89));
-    points.add(point2Builder.build());
+        point2Builder.putPayload("name", value("point2"));
+        point2Builder.putPayload("rand_number", value(89));
+        points.add(point2Builder.build());
 
-    // call the uploadBatch method
-    qdrantGrpc.upsert(collectionName, points);
+        // call the uploadBatch method
+        qdrantGrpc.upsert(collectionName, points);
 
-    qdrantGrpc.close();
-  }
+        qdrantGrpc.close();
+    }
 }
