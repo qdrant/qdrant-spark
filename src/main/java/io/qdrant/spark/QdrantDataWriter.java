@@ -6,6 +6,8 @@ import static io.qdrant.client.VectorsFactory.namedVectors;
 import static io.qdrant.client.VectorsFactory.vectors;
 import static io.qdrant.spark.QdrantValueFactory.value;
 
+import io.qdrant.client.grpc.JsonWithInt.Value;
+import io.qdrant.client.grpc.Points.PointStruct;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
@@ -13,7 +15,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
 import org.apache.spark.sql.catalyst.InternalRow;
 import org.apache.spark.sql.connector.write.DataWriter;
 import org.apache.spark.sql.connector.write.WriterCommitMessage;
@@ -23,18 +24,11 @@ import org.apache.spark.sql.types.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.qdrant.client.grpc.JsonWithInt.Value;
-import io.qdrant.client.grpc.Points.PointStruct;
-
 /**
- * A DataWriter implementation that writes data to Qdrant, a vector search
- * engine. This class takes
- * QdrantOptions and StructType as input and writes data to QdrantGRPC. It
- * implements the DataWriter
- * interface and overrides its methods write, commit, abort and close. It also
- * has a private method
- * write that is used to upload a batch of points to Qdrant. The class uses a
- * Point class to
+ * A DataWriter implementation that writes data to Qdrant, a vector search engine. This class takes
+ * QdrantOptions and StructType as input and writes data to QdrantGRPC. It implements the DataWriter
+ * interface and overrides its methods write, commit, abort and close. It also has a private method
+ * write that is used to upload a batch of points to Qdrant. The class uses a Point class to
  * represent a data point and an ArrayList to store the points.
  */
 public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
@@ -92,6 +86,7 @@ public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
     }
 
     pointBuilder.putAllPayload(payload);
+    this.points.add(pointBuilder.build());
 
     if (this.points.size() >= this.options.batchSize) {
       this.write(this.options.retries);
@@ -112,7 +107,7 @@ public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
   public void write(int retries) {
     LOG.info(
         String.join(
-            "", "Upload batch of ", Integer.toString(this.points.size()), " points to Qdrant"));
+            "", "Uploading batch of ", Integer.toString(this.points.size()), " points to Qdrant"));
 
     if (this.points.isEmpty()) {
       return;
@@ -135,10 +130,8 @@ public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
   }
 
   @Override
-  public void abort() {
-  }
+  public void abort() {}
 
   @Override
-  public void close() {
-  }
+  public void close() {}
 }

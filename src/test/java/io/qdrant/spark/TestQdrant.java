@@ -27,9 +27,10 @@ public class TestQdrant {
   @Test
   public void testInferSchema() {
     Qdrant qdrant = new Qdrant();
-    StructType schema = new StructType()
-        .add("id", DataTypes.StringType)
-        .add("embedding", DataTypes.createArrayType(DataTypes.FloatType));
+    StructType schema =
+        new StructType()
+            .add("id", DataTypes.StringType)
+            .add("embedding", DataTypes.createArrayType(DataTypes.FloatType));
     Map<String, String> options = new HashMap<>();
     options.put("schema", schema.json());
     options.put("collection_name", "test_collection");
@@ -43,9 +44,10 @@ public class TestQdrant {
   @Test
   public void testGetTable() {
     Qdrant qdrant = new Qdrant();
-    StructType schema = new StructType()
-        .add("id", DataTypes.StringType)
-        .add("embedding", DataTypes.createArrayType(DataTypes.FloatType));
+    StructType schema =
+        new StructType()
+            .add("id", DataTypes.StringType)
+            .add("embedding", DataTypes.createArrayType(DataTypes.FloatType));
     Map<String, String> options = new HashMap<>();
     options.put("schema", schema.json());
     options.put("collection_name", "test_collection");
@@ -58,9 +60,10 @@ public class TestQdrant {
   @Test()
   public void testCheckRequiredOptions() {
     Qdrant qdrant = new Qdrant();
-    StructType schema = new StructType()
-        .add("id", DataTypes.StringType)
-        .add("embedding", DataTypes.createArrayType(DataTypes.FloatType));
+    StructType schema =
+        new StructType()
+            .add("id", DataTypes.StringType)
+            .add("embedding", DataTypes.createArrayType(DataTypes.FloatType));
     Map<String, String> options = new HashMap<>();
     options.put("schema", schema.json());
     options.put("collection_name", "test_collection");
@@ -73,7 +76,8 @@ public class TestQdrant {
   @Test(expected = IllegalArgumentException.class)
   public void testCheckRequiredOptionsMissingIdField() {
     Qdrant qdrant = new Qdrant();
-    StructType schema = new StructType().add("embedding", DataTypes.createArrayType(DataTypes.FloatType));
+    StructType schema =
+        new StructType().add("embedding", DataTypes.createArrayType(DataTypes.FloatType));
     Map<String, String> options = new HashMap<>();
     options.put("schema", schema.json());
     options.put("collection_name", "test_collection");
