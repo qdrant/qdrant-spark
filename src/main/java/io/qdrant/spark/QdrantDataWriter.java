@@ -1,5 +1,7 @@
 package io.qdrant.spark;
 
+import static io.qdrant.spark.ObjectFactory.object;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,17 +15,11 @@ import org.apache.spark.sql.types.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.qdrant.spark.ObjectFactory.object;
-
 /**
- * A DataWriter implementation that writes data to Qdrant, a vector search
- * engine. This class takes
- * QdrantOptions and StructType as input and writes data to QdrantRest. It
- * implements the DataWriter
- * interface and overrides its methods write, commit, abort and close. It also
- * has a private method
- * write that is used to upload a batch of points to Qdrant. The class uses a
- * Point class to
+ * A DataWriter implementation that writes data to Qdrant, a vector search engine. This class takes
+ * QdrantOptions and StructType as input and writes data to QdrantRest. It implements the DataWriter
+ * interface and overrides its methods write, commit, abort and close. It also has a private method
+ * write that is used to upload a batch of points to Qdrant. The class uses a Point class to
  * represent a data point and an ArrayList to store the points.
  */
 public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
@@ -111,12 +107,10 @@ public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
   }
 
   @Override
-  public void abort() {
-  }
+  public void abort() {}
 
   @Override
-  public void close() {
-  }
+  public void close() {}
 }
 
 class Point implements Serializable {
