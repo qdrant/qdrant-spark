@@ -54,8 +54,7 @@ public class TestQdrant {
     options.put("embedding_field", "embedding");
     options.put("qdrant_url", "http://localhost:8080");
     CaseInsensitiveStringMap dataSourceOptions = new CaseInsensitiveStringMap(options);
-    var reader = qdrant.getTable(schema, null, dataSourceOptions);
-    Assert.assertTrue(reader instanceof QdrantCluster);
+    Assert.assertTrue(qdrant.getTable(schema, null, dataSourceOptions) instanceof QdrantCluster);
   }
 
   @Test()
