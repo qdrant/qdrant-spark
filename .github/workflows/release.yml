@@ -1,6 +1,10 @@
 name: Release
 
-on: [push, workflow_dispatch]
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
 
 jobs:
   build:
@@ -38,6 +42,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
       - name: "🔧 setup Bun"
         uses: oven-sh/setup-bun@v1
 
