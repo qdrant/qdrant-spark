@@ -1,13 +1,11 @@
 package io.qdrant.spark;
 
+import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
-
-import com.google.gson.Gson;
-
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -23,7 +21,7 @@ public class QdrantRest implements Serializable {
    * Constructor for QdrantRest class.
    *
    * @param qdrantUrl The URL of the Qdrant instance.
-   * @param apiKey    The API key to authenticate with Qdrant.
+   * @param apiKey The API key to authenticate with Qdrant.
    */
   public QdrantRest(String qdrantUrl, String apiKey) {
     this.qdrantUrl = qdrantUrl;
@@ -34,11 +32,9 @@ public class QdrantRest implements Serializable {
    * Uploads a batch of points to a Qdrant collection.
    *
    * @param collectionName The name of the collection to upload the points to.
-   * @param points         The list of points to upload.
-   * @throws IOException           If there was an error uploading the batch to
-   *                               Qdrant.
-   * @throws RuntimeException      If there was an error uploading the batch to
-   *                               Qdrant.
+   * @param points The list of points to upload.
+   * @throws IOException If there was an error uploading the batch to Qdrant.
+   * @throws RuntimeException If there was an error uploading the batch to Qdrant.
    * @throws MalformedURLException If the Qdrant URL is malformed.
    */
   public void uploadBatch(String collectionName, List<Point> points)
