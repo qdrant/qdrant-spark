@@ -9,7 +9,7 @@
 
 ### GitHub Releases 📦
 
-The packaged `jar` file releases can be found [here](https://github.com/qdrant/qdrant-spark/releases).
+The packaged `jar` file can be found [here](https://github.com/qdrant/qdrant-spark/releases).
 
 ### Building from source 🛠️
 
