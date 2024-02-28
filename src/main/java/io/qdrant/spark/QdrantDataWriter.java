@@ -13,6 +13,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import org.apache.spark.sql.catalyst.InternalRow;
 import org.apache.spark.sql.connector.write.DataWriter;
@@ -129,7 +130,6 @@ public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
   }
 
   @Override
-  public void abort() {}
   public void abort() {}
 
   @Override
