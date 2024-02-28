@@ -35,7 +35,7 @@ public class TestQdrant {
     options.put("schema", schema.json());
     options.put("collection_name", "test_collection");
     options.put("embedding_field", "embedding");
-    options.put("qdrant_url", "http://localhost:8080");
+    options.put("qdrant_url", "http://localhost:6334");
     CaseInsensitiveStringMap dataSourceOptions = new CaseInsensitiveStringMap(options);
     StructType inferredSchema = qdrant.inferSchema(dataSourceOptions);
     Assert.assertEquals(schema, inferredSchema);
@@ -52,13 +52,13 @@ public class TestQdrant {
     options.put("schema", schema.json());
     options.put("collection_name", "test_collection");
     options.put("embedding_field", "embedding");
-    options.put("qdrant_url", "http://localhost:8080");
+    options.put("qdrant_url", "http://localhost:6334");
     CaseInsensitiveStringMap dataSourceOptions = new CaseInsensitiveStringMap(options);
     Assert.assertTrue(qdrant.getTable(schema, null, dataSourceOptions) instanceof QdrantCluster);
   }
 
   @Test()
-  public void testCheckRequiredOptionsMissingOption() {
+  public void testCheckRequiredOptions() {
     Qdrant qdrant = new Qdrant();
     StructType schema =
         new StructType()
@@ -68,9 +68,9 @@ public class TestQdrant {
     options.put("schema", schema.json());
     options.put("collection_name", "test_collection");
     options.put("embedding_field", "embedding");
-    options.put("qdrant_url", "http://localhost:8080");
+    options.put("qdrant_url", "http://localhost:6334");
     CaseInsensitiveStringMap dataSourceOptions = new CaseInsensitiveStringMap(options);
-    qdrant.checkRequiredOptions(dataSourceOptions, schema);
+    qdrant.validateOptions(dataSourceOptions, schema);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -82,10 +82,10 @@ public class TestQdrant {
     options.put("schema", schema.json());
     options.put("collection_name", "test_collection");
     options.put("embedding_field", "embedding");
-    options.put("qdrant_url", "http://localhost:8080");
+    options.put("qdrant_url", "http://localhost:6334");
     options.put("id_field", "id");
     CaseInsensitiveStringMap dataSourceOptions = new CaseInsensitiveStringMap(options);
-    qdrant.checkRequiredOptions(dataSourceOptions, schema);
+    qdrant.validateOptions(dataSourceOptions, schema);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -95,9 +95,9 @@ public class TestQdrant {
     Map<String, String> options = new HashMap<>();
     options.put("schema", schema.json());
     options.put("collection_name", "test_collection");
-    options.put("qdrant_url", "http://localhost:8080");
+    options.put("qdrant_url", "http://localhost:6334");
     options.put("id_field", "id");
     CaseInsensitiveStringMap dataSourceOptions = new CaseInsensitiveStringMap(options);
-    qdrant.checkRequiredOptions(dataSourceOptions, schema);
+    qdrant.inferSchema(dataSourceOptions);
   }
 }

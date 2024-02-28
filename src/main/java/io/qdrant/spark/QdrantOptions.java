@@ -10,6 +10,7 @@ public class QdrantOptions implements Serializable {
   public String collectionName;
   public String embeddingField;
   public String idField;
+  public String vectorName;
   public int batchSize = 100;
   public int retries = 3;
 
@@ -24,6 +25,7 @@ public class QdrantOptions implements Serializable {
     this.embeddingField = options.get("embedding_field");
     this.idField = options.get("id_field");
     this.apiKey = options.get("api_key");
+    this.vectorName = options.get("vector_name");
 
     if (options.containsKey("batch_size")) {
       this.batchSize = Integer.parseInt(options.get("batch_size"));

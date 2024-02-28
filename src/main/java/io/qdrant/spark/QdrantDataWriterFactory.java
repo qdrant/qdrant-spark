@@ -22,11 +22,19 @@ public class QdrantDataWriterFactory implements StreamingDataWriterFactory, Data
 
   @Override
   public QdrantDataWriter createWriter(int partitionId, long taskId, long epochId) {
-    return new QdrantDataWriter(this.options, this.schema);
+    try {
+      return new QdrantDataWriter(this.options, this.schema);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
   public QdrantDataWriter createWriter(int partitionId, long taskId) {
-    return new QdrantDataWriter(this.options, this.schema);
+    try {
+      return new QdrantDataWriter(this.options, this.schema);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 }

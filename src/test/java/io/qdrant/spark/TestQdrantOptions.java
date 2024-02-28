@@ -11,7 +11,7 @@ public class TestQdrantOptions {
   @Test
   public void testQdrantOptions() {
     Map<String, String> options = new HashMap<>();
-    options.put("qdrant_url", "http://localhost:6333");
+    options.put("qdrant_url", "http://localhost:6334");
     options.put("api_key", "my-api-key");
     options.put("collection_name", "my-collection");
     options.put("embedding_field", "my-embedding-field");
@@ -19,7 +19,7 @@ public class TestQdrantOptions {
 
     QdrantOptions qdrantOptions = new QdrantOptions(options);
 
-    assertEquals("http://localhost:6333", qdrantOptions.qdrantUrl);
+    assertEquals("http://localhost:6334", qdrantOptions.qdrantUrl);
     assertEquals("my-api-key", qdrantOptions.apiKey);
     assertEquals("my-collection", qdrantOptions.collectionName);
     assertEquals("my-embedding-field", qdrantOptions.embeddingField);
