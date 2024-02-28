@@ -12,6 +12,7 @@ import org.apache.spark.sql.util.CaseInsensitiveStringMap;
 
 /**
  * A class that implements the TableProvider and DataSourceRegister interfaces. Provides methods to
+ * A class that implements the TableProvider and DataSourceRegister interfaces. Provides methods to
  * infer schema, get table, and check required options.
  */
 public class Qdrant implements TableProvider, DataSourceRegister {
@@ -37,9 +38,13 @@ public class Qdrant implements TableProvider, DataSourceRegister {
    */
   @Override
   public StructType inferSchema(CaseInsensitiveStringMap options) {
-
+    for (String fieldName : requiredFields) {
+      if (!options.containsKey(fieldName)) {
+        throw new IllegalArgumentException(fieldName.concat(" option is required"));
+      }
+    }
     StructType schema = (StructType) StructType.fromJson(options.get("schema"));
-    checkRequiredOptions(options, schema);
+    validateOptions(options, schema);
 
     return schema;
   }
@@ -61,18 +66,13 @@ public class Qdrant implements TableProvider, DataSourceRegister {
   }
 
   /**
-   * Checks if the required options are present in the provided options and if the id_field and
-   * embedding_field options are present in the provided schema.
+   * Checks if the required options are present in the provided options and chekcs if the specified
+   * id_field and embedding_field are present in the provided schema.
    *
    * @param options The options to check.
    * @param schema The schema to check.
    */
-  void checkRequiredOptions(CaseInsensitiveStringMap options, StructType schema) {
-    for (String fieldName : requiredFields) {
-      if (!options.containsKey(fieldName)) {
-        throw new IllegalArgumentException(fieldName + " option is required");
-      }
-    }
+  void validateOptions(CaseInsensitiveStringMap options, StructType schema) {
 
     List<String> fieldNames = Arrays.asList(schema.fieldNames());
 
@@ -80,14 +80,15 @@ public class Qdrant implements TableProvider, DataSourceRegister {
       String idField = options.get("id_field").toString();
 
       if (!fieldNames.contains(idField)) {
-        throw new IllegalArgumentException("id_field option is not present in the schema");
+        throw new IllegalArgumentException("Specified 'id_field' is not present in the schema");
       }
     }
 
     String embeddingField = options.get("embedding_field").toString();
 
     if (!fieldNames.contains(embeddingField)) {
-      throw new IllegalArgumentException("embedding_field option is not present in the schema");
+      throw new IllegalArgumentException(
+          "Specified 'embedding_field' is not present in the schema");
     }
   }
 }
