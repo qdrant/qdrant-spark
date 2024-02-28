@@ -12,6 +12,7 @@ import org.apache.spark.sql.util.CaseInsensitiveStringMap;
 
 /**
  * A class that implements the TableProvider and DataSourceRegister interfaces. Provides methods to
+ * A class that implements the TableProvider and DataSourceRegister interfaces. Provides methods to
  * infer schema, get table, and check required options.
  */
 public class Qdrant implements TableProvider, DataSourceRegister {
