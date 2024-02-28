@@ -66,6 +66,7 @@ public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
             break;
 
           case "integer":
+          case "long":
             pointBuilder.setId(id(record.getInt(fieldIndex)));
             break;
           default:
