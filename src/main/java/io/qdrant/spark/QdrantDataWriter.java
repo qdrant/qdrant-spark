@@ -69,8 +69,9 @@ public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
           case "long":
             pointBuilder.setId(id(record.getInt(fieldIndex)));
             break;
+
           default:
-            break;
+            throw new IllegalArgumentException("Point ID should be of type string or integer");
         }
 
       } else if (field.name().equals(this.options.embeddingField)) {
