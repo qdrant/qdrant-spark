@@ -13,11 +13,11 @@ The packaged `jar` file releases can be found [here](https://github.com/qdrant/q
 
 ### Building from source 🛠️
 
-To build the `jar` from source, you need [JDK@17](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html) and [Maven](https://maven.apache.org/) installed.
+To build the `jar` from source, you need [JDK@18](https://www.azul.com/downloads/#zulu) and [Maven](https://maven.apache.org/) installed.
 Once the requirements have been satisfied, run the following command in the project root. 🛠️
 
 ```bash
-mvn package -P assembly
+mvn package
 ```
 
 This will build and store the fat JAR in the `target` directory by default.
@@ -43,7 +43,7 @@ from pyspark.sql import SparkSession
 
 spark = SparkSession.builder.config(
         "spark.jars",
-        "spark-2.0-jar-with-dependencies.jar",  # specify the downloaded JAR file
+        "spark-2.0.jar",  # specify the downloaded JAR file
     )
     .master("local[*]")
     .appName("qdrant")
@@ -58,7 +58,7 @@ To load data into Qdrant, a collection has to be created beforehand with the app
    <pyspark.sql.DataFrame>
     .write
     .format("io.qdrant.spark.Qdrant")
-    .option("qdrant_url", <QDRANT_URL>)
+    .option("qdrant_url", <QDRANT_GRPC_URL>)
     .option("collection_name", <QDRANT_COLLECTION_NAME>)
     .option("embedding_field", <EMBEDDING_FIELD_NAME>)  # Expected to be a field of type ArrayType(FloatType)
     .option("schema", <pyspark.sql.DataFrame>.schema.json())
@@ -81,17 +81,16 @@ You can use the `qdrant-spark` connector as a library in Databricks to ingest da
 
 ## Datatype support 📋
 
-Qdrant supports all the Spark data types, and the appropriate types are mapped based on the provided `schema`.
+Qdrant supports all the Spark data types. The appropriate types are mapped based on the provided `schema`.
 
 ## Options and Spark types 🛠️
 
 | Option            | Description                                                               | DataType               | Required |
 | :---------------- | :------------------------------------------------------------------------ | :--------------------- | :------- |
-| `qdrant_url`      | REST URL of the Qdrant instance                                           | `StringType`           | ✅       |
+| `qdrant_url`      | GRPC URL of the Qdrant instance. Eg: <http://localhost:6334>                                       | `StringType`           | ✅       |
 | `collection_name` | Name of the collection to write data into                                 | `StringType`           | ✅       |
 | `embedding_field` | Name of the field holding the embeddings                                  | `ArrayType(FloatType)` | ✅       |
 | `schema`          | JSON string of the dataframe schema                                       | `StringType`           | ✅       |
-| `mode`            | Write mode of the dataframe. Supports "append".                           | `StringType`           | ✅       |
 | `id_field`        | Name of the field holding the point IDs. Default: Generates a random UUId | `StringType`           | ❌       |
 | `batch_size`      | Max size of the upload batch. Default: 100                                | `IntType`              | ❌       |
 | `retries`         | Number of upload retries. Default: 3                                      | `IntType`              | ❌       |
