@@ -13,7 +13,7 @@ The packaged `jar` file can be found [here](https://github.com/qdrant/qdrant-spa
 
 ### Building from source 🛠️
 
-To build the `jar` from source, you need [JDK@18](https://www.azul.com/downloads/#zulu) and [Maven](https://maven.apache.org/) installed.
+To build the `jar` from source, you need [JDK@8](https://www.azul.com/downloads/#zulu) and [Maven](https://maven.apache.org/) installed.
 Once the requirements have been satisfied, run the following command in the project root. 🛠️
 
 ```bash

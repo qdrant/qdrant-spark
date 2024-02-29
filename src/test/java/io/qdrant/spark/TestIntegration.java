@@ -19,9 +19,8 @@ import org.apache.spark.sql.types.StructType;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.qdrant.QdrantContainer;
 
 @Testcontainers
 public class TestIntegration {
@@ -31,15 +30,10 @@ public class TestIntegration {
   private static int grpcPort = 6334;
   private static Distance distance = Distance.Cosine;
 
-  @Rule
-  public final GenericContainer<?> qdrant =
-      new GenericContainer<>("qdrant/qdrant:latest").withExposedPorts(grpcPort);
+  @Rule public final QdrantContainer qdrant = new QdrantContainer("qdrant/qdrant");
 
   @Before
   public void setup() throws InterruptedException, ExecutionException {
-    qdrant.setWaitStrategy(
-        new LogMessageWaitStrategy()
-            .withRegEx(".*Actix runtime found; starting in Actix runtime.*"));
 
     QdrantClient client =
         new QdrantClient(
@@ -111,9 +105,7 @@ public class TestIntegration {
             });
     Dataset<Row> df = spark.createDataFrame(data, schema);
 
-    String qdrantUrl =
-        String.join(
-            "", "http://", qdrant.getHost(), ":", qdrant.getMappedPort(grpcPort).toString());
+    String qdrantUrl = String.join("", "http://", qdrant.getGrpcHostAddress());
     df.write()
         .format("io.qdrant.spark.Qdrant")
         .option("id_field", "id")
