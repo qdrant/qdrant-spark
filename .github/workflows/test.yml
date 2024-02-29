@@ -22,3 +22,11 @@ jobs:
         run: mvn test
       - name: Generate assembly fat JAR
         run: mvn clean package
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Install dependencies
+        run: pip install -r src/test/python/requirements.txt
+      - name: Run Python tests
+        run: pytest

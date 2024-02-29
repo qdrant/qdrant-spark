@@ -21,6 +21,11 @@ public class QdrantValueFactory {
   private QdrantValueFactory() {}
 
   public static Value value(InternalRow record, StructField field, int fieldIndex) {
+
+    if (record.isNullAt(fieldIndex)) {
+      return nullValue();
+    }
+
     DataType dataType = field.dataType();
 
     switch (dataType.typeName()) {
