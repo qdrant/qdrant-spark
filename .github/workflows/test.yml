@@ -1,4 +1,4 @@
-name: Maven Tests
+name: Maven and Python Tests
 "on":
   pull_request:
     types:
@@ -18,15 +18,22 @@ jobs:
         with:
           java-version: "8"
           distribution: temurin
-      - name: Run the Maven tests
+      - name: Cache local Maven repository
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Run Maven tests
         run: mvn test
-      - name: Generate assembly fat JAR
-        run: mvn clean package
+      - name: Generate JARs
+        run: mvn clean package -DskipTests
       - uses: actions/setup-python@v4
         with:
           python-version: '3.11'
           cache: 'pip'
-      - name: Install dependencies
+      - name: Install Python test dependencies
         run: pip install -r src/test/python/requirements.txt
       - name: Run Python tests
         run: pytest
