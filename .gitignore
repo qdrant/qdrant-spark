@@ -17,3 +17,9 @@ buildNumber.properties
 .classpath
 .vscode/
 .DS_Store
+
+poetry.lock
+.pytest_cache/
+*_pycache__
+
+senv

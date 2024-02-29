@@ -1,0 +1,4 @@
+pyspark==3.5.1
+pytest==8.0.2
+qdrant-client==1.7.3
+testcontainers==3.7.1
