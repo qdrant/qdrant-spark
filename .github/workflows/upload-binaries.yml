@@ -3,7 +3,7 @@ name: Build and release JAR files
 on:
   release:
     types:
-      - published
+    - published
 
 jobs:
   upload-jar:
