@@ -17,9 +17,8 @@ import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.qdrant.QdrantContainer;
 
 @Testcontainers
 public class TestQdrantGrpc {
@@ -28,16 +27,10 @@ public class TestQdrantGrpc {
   private static int grpcPort = 6334;
   private static Distance distance = Distance.Cosine;
 
-  @Rule
-  public final GenericContainer<?> qdrant =
-      new GenericContainer<>("qdrant/qdrant:latest").withExposedPorts(grpcPort);
+  @Rule public final QdrantContainer qdrant = new QdrantContainer("qdrant/qdrant");
 
   @Before
   public void setup() throws InterruptedException, ExecutionException {
-    qdrant.setWaitStrategy(
-        new LogMessageWaitStrategy()
-            .withRegEx(".*Actix runtime found; starting in Actix runtime.*"));
-
     QdrantClient client =
         new QdrantClient(
             QdrantGrpcClient.newBuilder(qdrant.getHost(), qdrant.getMappedPort(grpcPort), false)
@@ -54,9 +47,7 @@ public class TestQdrantGrpc {
 
   @Test
   public void testUploadBatch() throws Exception {
-    String qdrantUrl =
-        String.join(
-            "", "http://", qdrant.getHost(), ":", qdrant.getMappedPort(grpcPort).toString());
+    String qdrantUrl = String.join("", "http://", qdrant.getGrpcHostAddress());
     QdrantGrpc qdrantGrpc = new QdrantGrpc(new URL(qdrantUrl), null);
 
     List<PointStruct> points = new ArrayList<>();

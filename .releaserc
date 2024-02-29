@@ -81,11 +81,7 @@
                     "types": [
                         {
                             "type": "feat",
-                            "section": "🍕 Features"
-                        },
-                        {
-                            "type": "feature",
-                            "section": "🍕 Features"
+                            "section": "🌞 Features"
                         },
                         {
                             "type": "fix",
@@ -93,7 +89,7 @@
                         },
                         {
                             "type": "perf",
-                            "section": "🔥 Performance Improvements"
+                            "section": "🚀 Performance Improvements"
                         },
                         {
                             "type": "revert",

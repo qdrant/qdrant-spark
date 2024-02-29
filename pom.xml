@@ -36,24 +36,20 @@
 	</properties>
 	<dependencies>
 		<!-- QDRANT CLIENT DEPENDENCIES -->
-
+		<dependency>
+			<groupId>io.qdrant</groupId>
+			<artifactId>client</artifactId>
+			<version>1.7.2</version>
+		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>30.1-jre</version>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.grpc</groupId>
 			<artifactId>grpc-protobuf</artifactId>
 			<version>1.59.0</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.qdrant</groupId>
-			<artifactId>client</artifactId>
-			<version>1.7.1</version>
-			<scope>compile</scope>
 		</dependency>
 
 		<!-- SPARK DEPENDENCIES -->
@@ -83,11 +79,11 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.testcontainers</groupId>
-			<artifactId>testcontainers</artifactId>
-			<version>1.19.4</version>
-			<scope>test</scope>
-		</dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>qdrant</artifactId>
+            <version>1.19.6</version>
+            <scope>test</scope>
+        </dependency>  
 		<dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>junit-jupiter</artifactId>
