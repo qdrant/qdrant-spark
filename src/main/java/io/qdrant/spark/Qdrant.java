@@ -18,7 +18,7 @@ import org.apache.spark.sql.util.CaseInsensitiveStringMap;
 public class Qdrant implements TableProvider, DataSourceRegister {
 
   private final String[] requiredFields =
-      new String[] {"schema", "collection_name", "embedding_field", "qdrant_url"};
+      new String[] {"schema", "collection_name", "qdrant_url"};
 
   /**
    * Returns the short name of the data source.

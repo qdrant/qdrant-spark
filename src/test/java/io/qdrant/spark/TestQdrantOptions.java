@@ -26,7 +26,7 @@ public class TestQdrantOptions {
     assertEquals("my-id-field", qdrantOptions.idField);
 
     // Test default values
-    assertEquals(100, qdrantOptions.batchSize);
-    assertEquals(3, qdrantOptions.retries);
+    assertEquals(qdrantOptions.batchSize, 64);
+    assertEquals(qdrantOptions.retries, 3);
   }
 }
