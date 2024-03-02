@@ -8,7 +8,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import javax.annotation.Nullable;
 
 /** A class that provides methods to interact with Qdrant REST API. */
 public class QdrantGrpc implements Serializable {
@@ -21,20 +20,15 @@ public class QdrantGrpc implements Serializable {
    * @param apiKey The API key to authenticate with Qdrant.
    * @throws MalformedURLException If the URL is invalid.
    */
-  public QdrantGrpc(URL url, @Nullable String apiKey) throws MalformedURLException {
+  public QdrantGrpc(URL url, String apiKey) throws MalformedURLException {
 
     String host = url.getHost();
     int port = url.getPort() == -1 ? 6334 : url.getPort();
     boolean useTls = url.getProtocol().equalsIgnoreCase("https");
 
-    QdrantGrpcClient.Builder qdrantGrpcClientBuilder =
-        QdrantGrpcClient.newBuilder(host, port, useTls);
-
-    if (apiKey != null) {
-      qdrantGrpcClientBuilder.withApiKey(apiKey);
-    }
-
-    this.client = new QdrantClient(qdrantGrpcClientBuilder.build());
+    this.client =
+        new QdrantClient(
+            QdrantGrpcClient.newBuilder(host, port, useTls).withApiKey(apiKey).build());
   }
 
   /**

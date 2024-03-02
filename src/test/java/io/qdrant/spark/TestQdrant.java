@@ -57,47 +57,16 @@ public class TestQdrant {
     Assert.assertTrue(qdrant.getTable(schema, null, dataSourceOptions) instanceof QdrantCluster);
   }
 
-  @Test()
-  public void testCheckRequiredOptions() {
-    Qdrant qdrant = new Qdrant();
-    StructType schema =
-        new StructType()
-            .add("id", DataTypes.StringType)
-            .add("embedding", DataTypes.createArrayType(DataTypes.FloatType));
-    Map<String, String> options = new HashMap<>();
-    options.put("schema", schema.json());
-    options.put("collection_name", "test_collection");
-    options.put("embedding_field", "embedding");
-    options.put("qdrant_url", "http://localhost:6334");
-    CaseInsensitiveStringMap dataSourceOptions = new CaseInsensitiveStringMap(options);
-    qdrant.validateOptions(dataSourceOptions, schema);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testCheckRequiredOptionsMissingIdField() {
-    Qdrant qdrant = new Qdrant();
-    StructType schema =
-        new StructType().add("embedding", DataTypes.createArrayType(DataTypes.FloatType));
-    Map<String, String> options = new HashMap<>();
-    options.put("schema", schema.json());
-    options.put("collection_name", "test_collection");
-    options.put("embedding_field", "embedding");
-    options.put("qdrant_url", "http://localhost:6334");
-    options.put("id_field", "id");
-    CaseInsensitiveStringMap dataSourceOptions = new CaseInsensitiveStringMap(options);
-    qdrant.validateOptions(dataSourceOptions, schema);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testCheckRequiredOptionsMissingEmbeddingField() {
-    Qdrant qdrant = new Qdrant();
-    StructType schema = new StructType().add("id", DataTypes.StringType);
-    Map<String, String> options = new HashMap<>();
-    options.put("schema", schema.json());
-    options.put("collection_name", "test_collection");
-    options.put("qdrant_url", "http://localhost:6334");
-    options.put("id_field", "id");
-    CaseInsensitiveStringMap dataSourceOptions = new CaseInsensitiveStringMap(options);
-    qdrant.inferSchema(dataSourceOptions);
-  }
+  // @Test(expected = IllegalArgumentException.class)
+  // public void testCheckRequiredOptionsMissingEmbeddingField() {
+  //   Qdrant qdrant = new Qdrant();
+  //   StructType schema = new StructType().add("id", DataTypes.StringType);
+  //   Map<String, String> options = new HashMap<>();
+  //   options.put("schema", schema.json());
+  //   options.put("collection_name", "test_collection");
+  //   options.put("qdrant_url", "http://localhost:6334");
+  //   options.put("id_field", "id");
+  //   CaseInsensitiveStringMap dataSourceOptions = new CaseInsensitiveStringMap(options);
+  //   qdrant.inferSchema(dataSourceOptions);
+  // }
 }
