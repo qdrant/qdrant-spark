@@ -48,7 +48,7 @@ public class TestQdrantGrpc {
   @Test
   public void testUploadBatch() throws Exception {
     String qdrantUrl = String.join("", "http://", qdrant.getGrpcHostAddress());
-    QdrantGrpc qdrantGrpc = new QdrantGrpc(new URL(qdrantUrl), null);
+    QdrantGrpc qdrantGrpc = new QdrantGrpc(new URL(qdrantUrl), "");
 
     List<PointStruct> points = new ArrayList<>();
 

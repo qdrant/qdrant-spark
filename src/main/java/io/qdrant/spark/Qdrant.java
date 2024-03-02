@@ -1,7 +1,5 @@
 package io.qdrant.spark;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import org.apache.spark.sql.connector.catalog.Table;
 import org.apache.spark.sql.connector.catalog.TableProvider;
@@ -43,11 +41,9 @@ public class Qdrant implements TableProvider, DataSourceRegister {
       }
     }
     StructType schema = (StructType) StructType.fromJson(options.get("schema"));
-    validateOptions(options, schema);
 
     return schema;
   }
-  ;
 
   /**
    * Returns a table for the data source based on the provided schema, partitioning, and properties.
@@ -62,25 +58,5 @@ public class Qdrant implements TableProvider, DataSourceRegister {
       StructType schema, Transform[] partitioning, Map<String, String> properties) {
     QdrantOptions options = new QdrantOptions(properties);
     return new QdrantCluster(options, schema);
-  }
-
-  /**
-   * Checks if the required options are present in the provided options and chekcs if the specified
-   * id_field and embedding_field are present in the provided schema.
-   *
-   * @param options The options to check.
-   * @param schema The schema to check.
-   */
-  void validateOptions(CaseInsensitiveStringMap options, StructType schema) {
-
-    List<String> fieldNames = Arrays.asList(schema.fieldNames());
-
-    if (options.containsKey("id_field")) {
-      String idField = options.get("id_field").toString();
-
-      if (!fieldNames.contains(idField)) {
-        throw new IllegalArgumentException("Specified 'id_field' is not present in the schema");
-      }
-    }
   }
 }

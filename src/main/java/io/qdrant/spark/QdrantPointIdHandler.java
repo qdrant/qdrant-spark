@@ -16,7 +16,7 @@ public class QdrantPointIdHandler {
       return id(UUID.randomUUID());
     }
 
-    int idFieldIndex = schema.fieldIndex(idField.trim());
+    int idFieldIndex = schema.fieldIndex(idField);
     DataType idFieldType = schema.fields()[idFieldIndex].dataType();
     switch (idFieldType.typeName()) {
       case "string":
