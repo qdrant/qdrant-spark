@@ -83,9 +83,14 @@ def qdrant() -> Qdrant:
                 size=QDRANT_EMBEDDING_DIM,
                 distance=QDRANT_DISTANCE,
             ),
+            "another_dense": models.VectorParams(
+                size=QDRANT_EMBEDDING_DIM,
+                distance=QDRANT_DISTANCE,
+            ),
         },
         sparse_vectors_config={
             "sparse": models.SparseVectorParams(),
+            "another_sparse": models.SparseVectorParams(),
         },
     )
 
