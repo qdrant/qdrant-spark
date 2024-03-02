@@ -88,16 +88,16 @@ public class TestQdrant {
     qdrant.validateOptions(dataSourceOptions, schema);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testCheckRequiredOptionsMissingEmbeddingField() {
-    Qdrant qdrant = new Qdrant();
-    StructType schema = new StructType().add("id", DataTypes.StringType);
-    Map<String, String> options = new HashMap<>();
-    options.put("schema", schema.json());
-    options.put("collection_name", "test_collection");
-    options.put("qdrant_url", "http://localhost:6334");
-    options.put("id_field", "id");
-    CaseInsensitiveStringMap dataSourceOptions = new CaseInsensitiveStringMap(options);
-    qdrant.inferSchema(dataSourceOptions);
-  }
+  // @Test(expected = IllegalArgumentException.class)
+  // public void testCheckRequiredOptionsMissingEmbeddingField() {
+  //   Qdrant qdrant = new Qdrant();
+  //   StructType schema = new StructType().add("id", DataTypes.StringType);
+  //   Map<String, String> options = new HashMap<>();
+  //   options.put("schema", schema.json());
+  //   options.put("collection_name", "test_collection");
+  //   options.put("qdrant_url", "http://localhost:6334");
+  //   options.put("id_field", "id");
+  //   CaseInsensitiveStringMap dataSourceOptions = new CaseInsensitiveStringMap(options);
+  //   qdrant.inferSchema(dataSourceOptions);
+  // }
 }

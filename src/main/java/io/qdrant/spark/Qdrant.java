@@ -17,8 +17,7 @@ import org.apache.spark.sql.util.CaseInsensitiveStringMap;
  */
 public class Qdrant implements TableProvider, DataSourceRegister {
 
-  private final String[] requiredFields =
-      new String[] {"schema", "collection_name", "qdrant_url"};
+  private final String[] requiredFields = new String[] {"schema", "collection_name", "qdrant_url"};
 
   /**
    * Returns the short name of the data source.
@@ -82,13 +81,6 @@ public class Qdrant implements TableProvider, DataSourceRegister {
       if (!fieldNames.contains(idField)) {
         throw new IllegalArgumentException("Specified 'id_field' is not present in the schema");
       }
-    }
-
-    String embeddingField = options.get("embedding_field").toString();
-
-    if (!fieldNames.contains(embeddingField)) {
-      throw new IllegalArgumentException(
-          "Specified 'embedding_field' is not present in the schema");
     }
   }
 }
