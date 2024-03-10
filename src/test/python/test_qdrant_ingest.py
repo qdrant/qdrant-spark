@@ -1,14 +1,18 @@
 from pathlib import Path
 from pyspark.sql import SparkSession
-from pyspark.errors import IllegalArgumentException
-import pytest
+
+from .schema import schema
 from .conftest import Qdrant
 
 input_file_path = Path(__file__).with_name("users.json")
 
 
 def test_upsert_unnamed_vectors(qdrant: Qdrant, spark_session: SparkSession):
-    df = spark_session.read.option("multiline", "true").json(str(input_file_path))
+    df = (
+        spark_session.read.schema(schema)
+        .option("multiline", "true")
+        .json(str(input_file_path))
+    )
     df.write.format("io.qdrant.spark.Qdrant").option(
         "qdrant_url",
         qdrant.url,
@@ -20,7 +24,11 @@ def test_upsert_unnamed_vectors(qdrant: Qdrant, spark_session: SparkSession):
 
 
 def test_upsert_named_vectors(qdrant: Qdrant, spark_session: SparkSession):
-    df = spark_session.read.option("multiline", "true").json(str(input_file_path))
+    df = (
+        spark_session.read.schema(schema)
+        .option("multiline", "true")
+        .json(str(input_file_path))
+    )
     df.write.format("io.qdrant.spark.Qdrant").option(
         "qdrant_url",
         qdrant.url,
@@ -36,7 +44,11 @@ def test_upsert_named_vectors(qdrant: Qdrant, spark_session: SparkSession):
 def test_upsert_multiple_named_dense_vectors(
     qdrant: Qdrant, spark_session: SparkSession
 ):
-    df = spark_session.read.option("multiline", "true").json(str(input_file_path))
+    df = (
+        spark_session.read.schema(schema)
+        .option("multiline", "true")
+        .json(str(input_file_path))
+    )
     df.write.format("io.qdrant.spark.Qdrant").option(
         "qdrant_url",
         qdrant.url,
@@ -50,7 +62,11 @@ def test_upsert_multiple_named_dense_vectors(
 
 
 def test_upsert_sparse_vectors(qdrant: Qdrant, spark_session: SparkSession):
-    df = spark_session.read.option("multiline", "true").json(str(input_file_path))
+    df = (
+        spark_session.read.schema(schema)
+        .option("multiline", "true")
+        .json(str(input_file_path))
+    )
     df.write.format("io.qdrant.spark.Qdrant").option(
         "qdrant_url",
         qdrant.url,
@@ -64,7 +80,11 @@ def test_upsert_sparse_vectors(qdrant: Qdrant, spark_session: SparkSession):
 
 
 def test_upsert_multiple_sparse_vectors(qdrant: Qdrant, spark_session: SparkSession):
-    df = spark_session.read.option("multiline", "true").json(str(input_file_path))
+    df = (
+        spark_session.read.schema(schema)
+        .option("multiline", "true")
+        .json(str(input_file_path))
+    )
     df.write.format("io.qdrant.spark.Qdrant").option(
         "qdrant_url",
         qdrant.url,
@@ -78,7 +98,11 @@ def test_upsert_multiple_sparse_vectors(qdrant: Qdrant, spark_session: SparkSess
 
 
 def test_upsert_sparse_named_dense_vectors(qdrant: Qdrant, spark_session: SparkSession):
-    df = spark_session.read.option("multiline", "true").json(str(input_file_path))
+    df = (
+        spark_session.read.schema(schema)
+        .option("multiline", "true")
+        .json(str(input_file_path))
+    )
     df.write.format("io.qdrant.spark.Qdrant").option(
         "qdrant_url",
         qdrant.url,
@@ -96,7 +120,11 @@ def test_upsert_sparse_named_dense_vectors(qdrant: Qdrant, spark_session: SparkS
 def test_upsert_sparse_unnamed_dense_vectors(
     qdrant: Qdrant, spark_session: SparkSession
 ):
-    df = spark_session.read.option("multiline", "true").json(str(input_file_path))
+    df = (
+        spark_session.read.schema(schema)
+        .option("multiline", "true")
+        .json(str(input_file_path))
+    )
     df.write.format("io.qdrant.spark.Qdrant").option(
         "qdrant_url",
         qdrant.url,
@@ -114,7 +142,11 @@ def test_upsert_sparse_unnamed_dense_vectors(
 def test_upsert_multiple_sparse_dense_vectors(
     qdrant: Qdrant, spark_session: SparkSession
 ):
-    df = spark_session.read.option("multiline", "true").json(str(input_file_path))
+    df = (
+        spark_session.read.schema(schema)
+        .option("multiline", "true")
+        .json(str(input_file_path))
+    )
     df.write.format("io.qdrant.spark.Qdrant").option(
         "qdrant_url",
         qdrant.url,
@@ -131,7 +163,11 @@ def test_upsert_multiple_sparse_dense_vectors(
 
 # Test an upsert without vectors. All the dataframe fields will be treated as payload
 def test_upsert_without_vectors(qdrant: Qdrant, spark_session: SparkSession):
-    df = spark_session.read.option("multiline", "true").json(str(input_file_path))
+    df = (
+        spark_session.read.schema(schema)
+        .option("multiline", "true")
+        .json(str(input_file_path))
+    )
     df.write.format("io.qdrant.spark.Qdrant").option(
         "qdrant_url",
         qdrant.url,
@@ -143,9 +179,17 @@ def test_upsert_without_vectors(qdrant: Qdrant, spark_session: SparkSession):
 
 
 def test_custom_id_field(qdrant: Qdrant, spark_session: SparkSession):
-    df = spark_session.read.option("multiline", "true").json(str(input_file_path))
+    df = (
+        spark_session.read.schema(schema)
+        .option("multiline", "true")
+        .json(str(input_file_path))
+    )
 
-    df = spark_session.read.option("multiline", "true").json(str(input_file_path))
+    df = (
+        spark_session.read.schema(schema)
+        .option("multiline", "true")
+        .json(str(input_file_path))
+    )
     df.write.format("io.qdrant.spark.Qdrant").option(
         "qdrant_url",
         qdrant.url,
