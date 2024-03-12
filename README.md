@@ -216,4 +216,4 @@ Qdrant supports all the Spark data types. The appropriate types are mapped based
 
 ## LICENSE 📜
 
-Apache 2.0 © [2023](https://github.com/qdrant/qdrant-spark/blob/master/LICENSE)
+Apache 2.0 © [2024](https://github.com/qdrant/qdrant-spark/blob/master/LICENSE)
