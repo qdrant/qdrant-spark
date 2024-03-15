@@ -6,6 +6,7 @@ name: Maven and Python Tests
       - edited
       - synchronize
       - reopened
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -30,10 +31,10 @@ jobs:
           key: '${{ runner.os }}-maven-${{ hashFiles(''**/pom.xml'') }}'
           restore-keys: |
             ${{ runner.os }}-maven-
+      - name: Generate JAR file
+        run: mvn clean package -DskipTests
       - name: Run Maven tests
         run: mvn test
-      - name: Generate JARs
-        run: mvn clean package -DskipTests
       - uses: actions/setup-python@v4
         with:
           python-version: '${{ matrix.python-version }}'
