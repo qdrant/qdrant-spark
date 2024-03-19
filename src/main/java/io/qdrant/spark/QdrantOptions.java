@@ -7,6 +7,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import javax.annotation.Nullable;
+
+import io.qdrant.client.grpc.Collections.ShardKey;
+import io.qdrant.client.grpc.Points.ShardKeySelector;
+
+import static io.qdrant.client.ShardKeySelectorFactory.shardKeySelector;
+import static io.qdrant.client.ShardKeyFactory.shardKey;
+
 public class QdrantOptions implements Serializable {
   private static final int DEFAULT_BATCH_SIZE = 64;
   private static final int DEFAULT_RETRIES = 3;
@@ -25,14 +33,14 @@ public class QdrantOptions implements Serializable {
   public final String[] vectorFields;
   public final String[] vectorNames;
   public final List<String> payloadFieldsToSkip;
+  public final ShardKeySelector shardKeySelector;
 
   public QdrantOptions(Map<String, String> options) {
     Objects.requireNonNull(options);
 
     qdrantUrl = options.get("qdrant_url");
     collectionName = options.get("collection_name");
-    batchSize =
-        Integer.parseInt(options.getOrDefault("batch_size", String.valueOf(DEFAULT_BATCH_SIZE)));
+    batchSize = Integer.parseInt(options.getOrDefault("batch_size", String.valueOf(DEFAULT_BATCH_SIZE)));
     retries = Integer.parseInt(options.getOrDefault("retries", String.valueOf(DEFAULT_RETRIES)));
     idField = options.getOrDefault("id_field", "");
     apiKey = options.getOrDefault("api_key", "");
@@ -44,6 +52,8 @@ public class QdrantOptions implements Serializable {
     sparseVectorNames = parseArray(options.get("sparse_vector_names"));
     vectorFields = parseArray(options.get("vector_fields"));
     vectorNames = parseArray(options.get("vector_names"));
+
+    shardKeySelector = parseShardKeys(options.get("shard_key_selector"));
 
     validateSparseVectorFields();
     validateVectorFields();
@@ -81,6 +91,35 @@ public class QdrantOptions implements Serializable {
   private void validateVectorFields() {
     if (vectorFields.length != vectorNames.length) {
       throw new IllegalArgumentException("Vector fields and names should have the same length");
+    }
+  }
+
+  private ShardKeySelector parseShardKeys(@Nullable String shardKeys) {
+    if (shardKeys == null) {
+      return null;
+    }
+    String[] keys = shardKeys.split(",");
+
+    ShardKey[] shardKeysArray = new ShardKey[keys.length];
+
+    for (int i = 0; i < keys.length; i++) {
+      String key = keys[i];
+      if (isInt(key.trim())) {
+        shardKeysArray[i] = shardKey(Integer.parseInt(key.trim()));
+      } else {
+        shardKeysArray[i] = shardKey(key.trim());
+      }
+    }
+
+    return shardKeySelector(shardKeysArray);
+  }
+
+  boolean isInt(String s) {
+    try {
+      Integer.parseInt(s);
+      return true;
+    } catch (NumberFormatException er) {
+      return false;
     }
   }
 }

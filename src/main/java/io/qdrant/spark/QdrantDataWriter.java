@@ -81,7 +81,7 @@ public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
     try {
       // Instantiate a new QdrantGrpc object to maintain serializability
       QdrantGrpc qdrant = new QdrantGrpc(new URL(this.qdrantUrl), this.apiKey);
-      qdrant.upsert(this.options.collectionName, this.points);
+      qdrant.upsert(this.options.collectionName, this.points, this.options.shardKeySelector);
       qdrant.close();
       this.points.clear();
     } catch (Exception e) {

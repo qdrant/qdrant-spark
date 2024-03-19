@@ -69,7 +69,7 @@ public class TestQdrantGrpc {
     points.add(point2Builder.build());
 
     // call the uploadBatch method
-    qdrantGrpc.upsert(collectionName, points);
+    qdrantGrpc.upsert(collectionName, points, null);
 
     qdrantGrpc.close();
   }
