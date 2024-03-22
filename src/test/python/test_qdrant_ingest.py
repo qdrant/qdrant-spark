@@ -5,7 +5,7 @@ from .schema import schema
 from .conftest import Qdrant
 
 current_directory = os.path.dirname(__file__)
-input_file_path = os.path.join(current_directory, '..', 'Resources', 'users.json')
+input_file_path = os.path.join(current_directory, '..', 'resources', 'users.json')
 
 
 def test_upsert_unnamed_vectors(qdrant: Qdrant, spark_session: SparkSession):
