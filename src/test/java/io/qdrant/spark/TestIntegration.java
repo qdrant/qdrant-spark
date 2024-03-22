@@ -28,8 +28,8 @@ public class TestIntegration {
     private final int GRPC_PORT = 6334;
     private final int DIMENSION = 6;
     private final Distance DISTANCE = Distance.Cosine;
+    private final String COLLECTION_NAME = UUID.randomUUID().toString();
     private String qdrantUrl;
-    private String collectionName;
     private QdrantClient client;
     private SparkSession spark;
     Dataset < Row > df;
@@ -39,7 +39,7 @@ public class TestIntegration {
 
     @Before
     public void setup() throws InterruptedException, ExecutionException {
-        collectionName = UUID.randomUUID().toString();
+
         qdrantUrl = String.join("", "http://", qdrant.getGrpcHostAddress());
 
         client = new QdrantClient(
@@ -47,14 +47,14 @@ public class TestIntegration {
             .build());
 
         CreateCollection collectionConfig = CreateCollection.newBuilder()
-            .setCollectionName(collectionName)
+            .setCollectionName(COLLECTION_NAME)
             .setVectorsConfig(VectorsConfig.newBuilder()
                 .setParamsMap(VectorParamsMap.newBuilder()
+                    .putMap("",
+                        VectorParams.newBuilder().setDistance(DISTANCE).setSize(DIMENSION).build())
                     .putMap("dense",
                         VectorParams.newBuilder().setDistance(DISTANCE).setSize(DIMENSION).build())
                     .putMap("another_dense",
-                        VectorParams.newBuilder().setDistance(DISTANCE).setSize(DIMENSION).build())
-                    .putMap("",
                         VectorParams.newBuilder().setDistance(DISTANCE).setSize(DIMENSION).build())
                     .build())
                 .build())
@@ -80,13 +80,14 @@ public class TestIntegration {
             .format("io.qdrant.spark.Qdrant")
             .option("id_field", "id")
             .option("schema", df.schema().json())
-            .option("collection_name", collectionName)
+            .option("collection_name", COLLECTION_NAME)
             .option("embedding_field", "dense_vector")
             .option("qdrant_url", qdrantUrl)
             .mode("append")
             .save();
 
-        Assert.assertTrue("testUnnamedVector()", client.countAsync(collectionName).get() == df.count());
+        Assert.assertEquals("testUnnamedVector()", (long) client.countAsync(COLLECTION_NAME).get(),
+            df.count());
     }
 
     @Test
@@ -96,14 +97,15 @@ public class TestIntegration {
             .format("io.qdrant.spark.Qdrant")
             .option("id_field", "id")
             .option("schema", df.schema().json())
-            .option("collection_name", collectionName)
+            .option("collection_name", COLLECTION_NAME)
             .option("embedding_field", "dense_vector")
             .option("vector_name", "dense")
             .option("qdrant_url", qdrantUrl)
             .mode("append")
             .save();
 
-        Assert.assertTrue("testNamedVector()", client.countAsync(collectionName).get() == df.count());
+        Assert.assertEquals("testNamedVector()", (long) client.countAsync(COLLECTION_NAME).get(),
+            df.count());
     }
 
     @Test
@@ -113,14 +115,15 @@ public class TestIntegration {
             .format("io.qdrant.spark.Qdrant")
             .option("id_field", "id")
             .option("schema", df.schema().json())
-            .option("collection_name", collectionName)
+            .option("collection_name", COLLECTION_NAME)
             .option("vector_fields", "dense_vector,dense_vector")
             .option("vector_names", "dense,another_dense")
             .option("qdrant_url", qdrantUrl)
             .mode("append")
             .save();
 
-        Assert.assertTrue("testMultipleNamedVectors()", client.countAsync(collectionName).get() == df.count());
+        Assert.assertEquals("testMultipleNamedVectors()", (long) client.countAsync(COLLECTION_NAME).get(),
+            df.count());
     }
 
     @Test
@@ -130,7 +133,7 @@ public class TestIntegration {
             .format("io.qdrant.spark.Qdrant")
             .option("id_field", "id")
             .option("schema", df.schema().json())
-            .option("collection_name", collectionName)
+            .option("collection_name", COLLECTION_NAME)
             .option("sparse_vector_value_fields", "sparse_values")
             .option("sparse_vector_index_fields", "sparse_indices")
             .option("sparse_vector_names", "sparse")
@@ -138,7 +141,8 @@ public class TestIntegration {
             .mode("append")
             .save();
 
-        Assert.assertTrue("testSparseVector()", client.countAsync(collectionName).get() == df.count());
+        Assert.assertEquals("testSparseVector()", (long) client.countAsync(COLLECTION_NAME).get(),
+            df.count());
     }
 
     @Test
@@ -148,7 +152,7 @@ public class TestIntegration {
             .format("io.qdrant.spark.Qdrant")
             .option("id_field", "id")
             .option("schema", df.schema().json())
-            .option("collection_name", collectionName)
+            .option("collection_name", COLLECTION_NAME)
             .option("sparse_vector_value_fields", "sparse_values,sparse_values")
             .option("sparse_vector_index_fields", "sparse_indices,sparse_indices")
             .option("sparse_vector_names", "sparse,another_sparse")
@@ -156,7 +160,8 @@ public class TestIntegration {
             .mode("append")
             .save();
 
-        Assert.assertTrue("testMultipleSparseVectors()", client.countAsync(collectionName).get() == df.count());
+        Assert.assertEquals("testMultipleSparseVectors()", (long) client.countAsync(COLLECTION_NAME).get(),
+            df.count());
     }
 
     @Test
@@ -166,7 +171,7 @@ public class TestIntegration {
             .format("io.qdrant.spark.Qdrant")
             .option("id_field", "id")
             .option("schema", df.schema().json())
-            .option("collection_name", collectionName)
+            .option("collection_name", COLLECTION_NAME)
             .option("vector_fields", "dense_vector")
             .option("vector_names", "dense")
             .option("sparse_vector_value_fields", "sparse_values")
@@ -176,7 +181,8 @@ public class TestIntegration {
             .mode("append")
             .save();
 
-        Assert.assertTrue("testDenseAndSparseVector()", client.countAsync(collectionName).get() == df.count());
+        Assert.assertEquals("testDenseAndSparseVector()", (long) client.countAsync(COLLECTION_NAME).get(),
+            df.count());
     }
 
     @Test
@@ -186,7 +192,7 @@ public class TestIntegration {
             .format("io.qdrant.spark.Qdrant")
             .option("id_field", "id")
             .option("schema", df.schema().json())
-            .option("collection_name", collectionName)
+            .option("collection_name", COLLECTION_NAME)
             .option("embedding_field", "dense_vector")
             .option("sparse_vector_value_fields", "sparse_values")
             .option("sparse_vector_index_fields", "sparse_indices")
@@ -195,7 +201,8 @@ public class TestIntegration {
             .mode("append")
             .save();
 
-        Assert.assertTrue("testUnnamedDenseAndSparseVector()", client.countAsync(collectionName).get() == df.count());
+        Assert.assertEquals("testUnnamedDenseAndSparseVector()", (long) client.countAsync(COLLECTION_NAME).get(),
+            df.count());
     }
 
     @Test
@@ -205,7 +212,7 @@ public class TestIntegration {
             .format("io.qdrant.spark.Qdrant")
             .option("id_field", "id")
             .option("schema", df.schema().json())
-            .option("collection_name", collectionName)
+            .option("collection_name", COLLECTION_NAME)
             .option("vector_fields", "dense_vector,dense_vector")
             .option("vector_names", "dense,another_dense")
             .option("sparse_vector_value_fields", "sparse_values,sparse_values")
@@ -215,7 +222,8 @@ public class TestIntegration {
             .mode("append")
             .save();
 
-        Assert.assertTrue("testMultipleDenseAndSparseVectors()", client.countAsync(collectionName).get() == df.count());
+        Assert.assertEquals("testMultipleDenseAndSparseVectors()", (long) client.countAsync(COLLECTION_NAME).get(),
+            df.count());
     }
 
     @Test
@@ -225,11 +233,12 @@ public class TestIntegration {
             .format("io.qdrant.spark.Qdrant")
             .option("id_field", "id")
             .option("schema", df.schema().json())
-            .option("collection_name", collectionName)
+            .option("collection_name", COLLECTION_NAME)
             .option("qdrant_url", qdrantUrl)
             .mode("append")
             .save();
 
-        Assert.assertTrue("testMultipleDenseAndSparseVectors()", client.countAsync(collectionName).get() == df.count());
+        Assert.assertEquals("testNoVectors()", (long) client.countAsync(COLLECTION_NAME).get(),
+            df.count());
     }
 }
