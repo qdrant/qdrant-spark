@@ -35,7 +35,7 @@ from pyspark.sql import SparkSession
 
 spark = SparkSession.builder.config(
         "spark.jars",
-        "spark-2.1.0.jar",  # specify the downloaded JAR file
+        "spark-VERSION.jar",  # Specify the downloaded JAR file
     )
     .master("local[*]")
     .appName("qdrant")
@@ -187,7 +187,7 @@ You can use the connector as a library in Databricks to ingest data into Qdrant.
 
 - Go to the `Libraries` section in your cluster dashboard.
 - Select `Install New` to open the library installation modal.
-- Search for `io.qdrant:spark:2.1.0` in the Maven packages and click `Install`.
+- Search for `io.qdrant:spark:VERSION` in the Maven packages and click `Install`.
 
 <img width="1064" alt="Screenshot 2024-01-05 at 17 20 01 (1)" src="https://github.com/qdrant/qdrant-spark/assets/46051506/d95773e0-c5c6-4ff2-bf50-8055bb08fd1b">
 

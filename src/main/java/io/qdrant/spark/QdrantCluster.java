@@ -10,11 +10,7 @@ import org.apache.spark.sql.connector.write.LogicalWriteInfo;
 import org.apache.spark.sql.connector.write.WriteBuilder;
 import org.apache.spark.sql.types.StructType;
 
-/**
- * QdrantCluster class implements the SupportsWrite interface and provides a newWriteBuilder method
- * to write data to Qdrant. It also provides methods to get the name, schema and capabilities of the
- * QdrantCluster.
- */
+/** QdrantCluster class implements the SupportsWrite interface. */
 public class QdrantCluster implements SupportsWrite {
 
   private final StructType schema;

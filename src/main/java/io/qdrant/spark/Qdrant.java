@@ -8,11 +8,7 @@ import org.apache.spark.sql.sources.DataSourceRegister;
 import org.apache.spark.sql.types.StructType;
 import org.apache.spark.sql.util.CaseInsensitiveStringMap;
 
-/**
- * A class that implements the TableProvider and DataSourceRegister interfaces. Provides methods to
- * A class that implements the TableProvider and DataSourceRegister interfaces. Provides methods to
- * infer schema, get table, and check required options.
- */
+/** A class that implements the TableProvider and DataSourceRegister interfaces. */
 public class Qdrant implements TableProvider, DataSourceRegister {
 
   private final String[] requiredFields = new String[] {"schema", "collection_name", "qdrant_url"};

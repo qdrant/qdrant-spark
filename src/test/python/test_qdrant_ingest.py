@@ -1,10 +1,11 @@
-from pathlib import Path
+import os
 from pyspark.sql import SparkSession
 
 from .schema import schema
 from .conftest import Qdrant
 
-input_file_path = Path(__file__).with_name("users.json")
+current_directory = os.path.dirname(__file__)
+input_file_path = os.path.join(current_directory, '..', 'resources', 'users.json')
 
 
 def test_upsert_unnamed_vectors(qdrant: Qdrant, spark_session: SparkSession):
@@ -20,7 +21,9 @@ def test_upsert_unnamed_vectors(qdrant: Qdrant, spark_session: SparkSession):
         "embedding_field", "dense_vector"
     ).mode("append").option("schema", df.schema.json()).save()
 
-    assert qdrant.client.count(qdrant.collection_name).count == df.count(), "Uploaded points count is not equal to the dataframe count"
+    assert (
+        qdrant.client.count(qdrant.collection_name).count == df.count()
+    ), "Uploaded points count is not equal to the dataframe count"
 
 
 def test_upsert_named_vectors(qdrant: Qdrant, spark_session: SparkSession):
@@ -38,8 +41,9 @@ def test_upsert_named_vectors(qdrant: Qdrant, spark_session: SparkSession):
         "append"
     ).save()
 
-    assert qdrant.client.count(qdrant.collection_name).count == df.count(), "Uploaded points count is not equal to the dataframe count"
-
+    assert (
+        qdrant.client.count(qdrant.collection_name).count == df.count()
+    ), "Uploaded points count is not equal to the dataframe count"
 
 
 def test_upsert_multiple_named_dense_vectors(
@@ -59,7 +63,9 @@ def test_upsert_multiple_named_dense_vectors(
         "schema", df.schema.json()
     ).mode("append").save()
 
-    assert qdrant.client.count(qdrant.collection_name).count == df.count(), "Uploaded points count is not equal to the dataframe count"
+    assert (
+        qdrant.client.count(qdrant.collection_name).count == df.count()
+    ), "Uploaded points count is not equal to the dataframe count"
 
 
 def test_upsert_sparse_vectors(qdrant: Qdrant, spark_session: SparkSession):
@@ -77,7 +83,9 @@ def test_upsert_sparse_vectors(qdrant: Qdrant, spark_session: SparkSession):
         "sparse_vector_names", "sparse"
     ).option("schema", df.schema.json()).mode("append").save()
 
-    assert qdrant.client.count(qdrant.collection_name).count == df.count(), "Uploaded points count is not equal to the dataframe count"
+    assert (
+        qdrant.client.count(qdrant.collection_name).count == df.count()
+    ), "Uploaded points count is not equal to the dataframe count"
 
 
 def test_upsert_multiple_sparse_vectors(qdrant: Qdrant, spark_session: SparkSession):
@@ -95,7 +103,9 @@ def test_upsert_multiple_sparse_vectors(qdrant: Qdrant, spark_session: SparkSess
         "sparse_vector_names", "sparse,another_sparse"
     ).option("schema", df.schema.json()).mode("append").save()
 
-    assert qdrant.client.count(qdrant.collection_name).count == df.count(), "Uploaded points count is not equal to the dataframe count"
+    assert (
+        qdrant.client.count(qdrant.collection_name).count == df.count()
+    ), "Uploaded points count is not equal to the dataframe count"
 
 
 def test_upsert_sparse_named_dense_vectors(qdrant: Qdrant, spark_session: SparkSession):
@@ -115,7 +125,9 @@ def test_upsert_sparse_named_dense_vectors(qdrant: Qdrant, spark_session: SparkS
         "sparse_vector_names", "sparse"
     ).option("schema", df.schema.json()).mode("append").save()
 
-    assert qdrant.client.count(qdrant.collection_name).count == df.count(), "Uploaded points count is not equal to the dataframe count"
+    assert (
+        qdrant.client.count(qdrant.collection_name).count == df.count()
+    ), "Uploaded points count is not equal to the dataframe count"
 
 
 def test_upsert_sparse_unnamed_dense_vectors(
@@ -137,7 +149,9 @@ def test_upsert_sparse_unnamed_dense_vectors(
         "append"
     ).save()
 
-    assert qdrant.client.count(qdrant.collection_name).count == df.count(), "Uploaded points count is not equal to the dataframe count"
+    assert (
+        qdrant.client.count(qdrant.collection_name).count == df.count()
+    ), "Uploaded points count is not equal to the dataframe count"
 
 
 def test_upsert_multiple_sparse_dense_vectors(
@@ -159,7 +173,9 @@ def test_upsert_multiple_sparse_dense_vectors(
         "sparse_vector_names", "sparse,another_sparse"
     ).option("schema", df.schema.json()).mode("append").save()
 
-    assert qdrant.client.count(qdrant.collection_name).count == df.count(), "Uploaded points count is not equal to the dataframe count"
+    assert (
+        qdrant.client.count(qdrant.collection_name).count == df.count()
+    ), "Uploaded points count is not equal to the dataframe count"
 
 
 # Test an upsert without vectors. All the dataframe fields will be treated as payload
@@ -176,7 +192,9 @@ def test_upsert_without_vectors(qdrant: Qdrant, spark_session: SparkSession):
         "schema", df.schema.json()
     ).mode("append").save()
 
-    assert qdrant.client.count(qdrant.collection_name).count == df.count(), "Uploaded points count is not equal to the dataframe count"
+    assert (
+        qdrant.client.count(qdrant.collection_name).count == df.count()
+    ), "Uploaded points count is not equal to the dataframe count"
 
 
 def test_custom_id_field(qdrant: Qdrant, spark_session: SparkSession):
