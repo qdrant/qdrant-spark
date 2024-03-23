@@ -1,19 +1,17 @@
 package io.qdrant.spark;
 
+import static io.qdrant.client.ShardKeyFactory.shardKey;
+import static io.qdrant.client.ShardKeySelectorFactory.shardKeySelector;
+
+import io.qdrant.client.grpc.Collections.ShardKey;
+import io.qdrant.client.grpc.Points.ShardKeySelector;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
 import javax.annotation.Nullable;
-
-import io.qdrant.client.grpc.Collections.ShardKey;
-import io.qdrant.client.grpc.Points.ShardKeySelector;
-
-import static io.qdrant.client.ShardKeySelectorFactory.shardKeySelector;
-import static io.qdrant.client.ShardKeyFactory.shardKey;
 
 public class QdrantOptions implements Serializable {
   private static final int DEFAULT_BATCH_SIZE = 64;
@@ -40,7 +38,8 @@ public class QdrantOptions implements Serializable {
 
     qdrantUrl = options.get("qdrant_url");
     collectionName = options.get("collection_name");
-    batchSize = Integer.parseInt(options.getOrDefault("batch_size", String.valueOf(DEFAULT_BATCH_SIZE)));
+    batchSize =
+        Integer.parseInt(options.getOrDefault("batch_size", String.valueOf(DEFAULT_BATCH_SIZE)));
     retries = Integer.parseInt(options.getOrDefault("retries", String.valueOf(DEFAULT_RETRIES)));
     idField = options.getOrDefault("id_field", "");
     apiKey = options.getOrDefault("api_key", "");
