@@ -57,11 +57,12 @@ def spark_session():
         .getOrCreate()
     )
 
-    return spark_session
+    yield spark_session
+    return spark_session.stop()
 
 
 @pytest.fixture()
-def qdrant() -> Qdrant:
+def qdrant():
     host = qdrant_container.get_container_host_ip()
     grpc_port = qdrant_container.get_exposed_port(QDRANT_GRPC_PORT)
 
@@ -94,8 +95,10 @@ def qdrant() -> Qdrant:
         },
     )
 
-    return Qdrant(
+    yield Qdrant(
         url=f"http://{host}:{grpc_port}",
         client=client,
         collection_name=collection_name,
     )
+
+    return client.close()
