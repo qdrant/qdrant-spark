@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutionException;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -86,6 +87,12 @@ public class TestIntegration {
             .schema(TestSchema.schema())
             .option("multiline", "true")
             .json(this.getClass().getResource("/users.json").toString());
+  }
+
+  @After
+  public void tearDown() throws InterruptedException, ExecutionException {
+    spark.stop();
+    client.close();
   }
 
   @Test
