@@ -1,9 +1,7 @@
 package io.qdrant.spark;
 
 import static io.qdrant.client.ShardKeyFactory.shardKey;
-import static io.qdrant.client.ShardKeySelectorFactory.shardKeySelector;
 
-import io.qdrant.client.grpc.Collections.ShardKey;
 import io.qdrant.client.grpc.Points.ShardKeySelector;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -11,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 public class QdrantOptions implements Serializable {
@@ -38,9 +37,8 @@ public class QdrantOptions implements Serializable {
 
     qdrantUrl = options.get("qdrant_url");
     collectionName = options.get("collection_name");
-    batchSize =
-        Integer.parseInt(options.getOrDefault("batch_size", String.valueOf(DEFAULT_BATCH_SIZE)));
-    retries = Integer.parseInt(options.getOrDefault("retries", String.valueOf(DEFAULT_RETRIES)));
+    batchSize = getIntOption(options, "batch_size", DEFAULT_BATCH_SIZE);
+    retries = getIntOption(options, "retries", DEFAULT_RETRIES);
     idField = options.getOrDefault("id_field", "");
     apiKey = options.getOrDefault("api_key", "");
     embeddingField = options.getOrDefault("embedding_field", "");
@@ -57,26 +55,17 @@ public class QdrantOptions implements Serializable {
     validateSparseVectorFields();
     validateVectorFields();
 
-    payloadFieldsToSkip = new ArrayList<>();
-    payloadFieldsToSkip.add(idField);
-    payloadFieldsToSkip.add(embeddingField);
-    payloadFieldsToSkip.addAll(Arrays.asList(sparseVectorValueFields));
-    payloadFieldsToSkip.addAll(Arrays.asList(sparseVectorIndexFields));
-    payloadFieldsToSkip.addAll(Arrays.asList(sparseVectorNames));
-    payloadFieldsToSkip.addAll(Arrays.asList(vectorFields));
-    payloadFieldsToSkip.addAll(Arrays.asList(vectorNames));
+    payloadFieldsToSkip = buildPayloadFieldsToSkip();
+  }
+
+  private int getIntOption(Map<String, String> options, String key, int defaultValue) {
+    return Integer.parseInt(options.getOrDefault(key, String.valueOf(defaultValue)));
   }
 
   private String[] parseArray(String input) {
-    if (input != null) {
-      String[] parts = input.split(",");
-      for (int i = 0; i < parts.length; i++) {
-        parts[i] = parts[i].trim();
-      }
-      return parts;
-    } else {
-      return new String[0];
-    }
+    return input == null
+        ? new String[0]
+        : Arrays.stream(input.split(",")).map(String::trim).toArray(String[]::new);
   }
 
   private void validateSparseVectorFields() {
@@ -97,20 +86,21 @@ public class QdrantOptions implements Serializable {
     if (shardKeys == null) {
       return null;
     }
-    String[] keys = shardKeys.split(",");
 
-    ShardKey[] shardKeysArray = new ShardKey[keys.length];
-
-    for (int i = 0; i < keys.length; i++) {
-      String key = keys[i];
-      if (isInt(key.trim())) {
-        shardKeysArray[i] = shardKey(Integer.parseInt(key.trim()));
-      } else {
-        shardKeysArray[i] = shardKey(key.trim());
-      }
-    }
-
-    return shardKeySelector(shardKeysArray);
+    return ShardKeySelector.newBuilder()
+        .addAllShardKeys(
+            Arrays.stream(shardKeys.split(","))
+                .map(String::trim)
+                .map(
+                    (key) -> {
+                      if (isInt(key)) {
+                        return shardKey(Integer.parseInt(key));
+                      } else {
+                        return shardKey(key);
+                      }
+                    })
+                .collect(Collectors.toList()))
+        .build();
   }
 
   boolean isInt(String s) {
@@ -120,5 +110,17 @@ public class QdrantOptions implements Serializable {
     } catch (NumberFormatException er) {
       return false;
     }
+  }
+
+  private List<String> buildPayloadFieldsToSkip() {
+    List<String> fields = new ArrayList<>();
+    fields.add(idField);
+    fields.add(embeddingField);
+    fields.addAll(Arrays.asList(sparseVectorValueFields));
+    fields.addAll(Arrays.asList(sparseVectorIndexFields));
+    fields.addAll(Arrays.asList(sparseVectorNames));
+    fields.addAll(Arrays.asList(vectorFields));
+    fields.addAll(Arrays.asList(vectorNames));
+    return fields;
   }
 }

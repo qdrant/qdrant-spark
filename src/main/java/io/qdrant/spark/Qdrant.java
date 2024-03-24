@@ -8,46 +8,40 @@ import org.apache.spark.sql.sources.DataSourceRegister;
 import org.apache.spark.sql.types.StructType;
 import org.apache.spark.sql.util.CaseInsensitiveStringMap;
 
-/** A class that implements the TableProvider and DataSourceRegister interfaces. */
+/** Qdrant datasource for Apache Spark. */
 public class Qdrant implements TableProvider, DataSourceRegister {
 
-  private final String[] requiredFields = new String[] {"schema", "collection_name", "qdrant_url"};
+  private static final String[] REQUIRED_FIELDS = {"schema", "collection_name", "qdrant_url"};
 
-  /**
-   * Returns the short name of the data source.
-   *
-   * @return The short name of the data source.
-   */
+  /** Returns the short name of the data source. */
   @Override
   public String shortName() {
     return "qdrant";
   }
 
   /**
-   * Infers the schema of the data source based on the provided options.
+   * Validates and infers the schema from the provided options.
    *
-   * @param options The options used to infer the schema.
-   * @return The inferred schema.
+   * @throws IllegalArgumentException if required options are missing.
    */
   @Override
   public StructType inferSchema(CaseInsensitiveStringMap options) {
-    for (String fieldName : requiredFields) {
-      if (!options.containsKey(fieldName)) {
-        throw new IllegalArgumentException(fieldName.concat(" option is required"));
+    validateOptions(options);
+    return (StructType) StructType.fromJson(options.get("schema"));
+  }
+
+  private void validateOptions(CaseInsensitiveStringMap options) {
+    for (String field : REQUIRED_FIELDS) {
+      if (!options.containsKey(field)) {
+        throw new IllegalArgumentException(String.format("%s option is required", field));
       }
     }
-    StructType schema = (StructType) StructType.fromJson(options.get("schema"));
-
-    return schema;
   }
 
   /**
-   * Returns a table for the data source based on the provided schema, partitioning, and properties.
+   * Creates a Qdrant table instance with validated options.
    *
-   * @param schema The schema of the table.
-   * @param partitioning The partitioning of the table.
-   * @param properties The properties of the table.
-   * @return The table for the data source.
+   * @throws IllegalArgumentException if options are invalid.
    */
   @Override
   public Table getTable(

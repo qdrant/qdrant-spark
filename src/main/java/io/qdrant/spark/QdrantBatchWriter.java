@@ -6,7 +6,7 @@ import org.apache.spark.sql.connector.write.PhysicalWriteInfo;
 import org.apache.spark.sql.connector.write.WriterCommitMessage;
 import org.apache.spark.sql.types.StructType;
 
-/** QdrantBatchWriter class implements the BatchWrite interface. */
+/** Qdrant batch writer for Apache Spark. */
 public class QdrantBatchWriter implements BatchWrite {
 
   private final QdrantOptions options;
@@ -23,13 +23,8 @@ public class QdrantBatchWriter implements BatchWrite {
   }
 
   @Override
-  public void commit(WriterCommitMessage[] messages) {
-    // TODO Auto-generated method stub
-
-  }
+  public void commit(WriterCommitMessage[] messages) {}
 
   @Override
-  public void abort(WriterCommitMessage[] messages) {
-    // TODO Auto-generated method stub
-  }
+  public void abort(WriterCommitMessage[] messages) {}
 }

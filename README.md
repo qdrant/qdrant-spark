@@ -2,19 +2,19 @@
 
 [Apache Spark](https://spark.apache.org/) is a distributed computing framework designed for big data processing and analytics. This connector enables [Qdrant](https://qdrant.tech/) to be a storage destination in Spark.
 
-## Installation 🚀
+## Installation
 
 > [!IMPORTANT]  
 > Requires Java 8 or above.
 
-### GitHub Releases 📦
+### GitHub Releases
 
 The packaged `jar` file can be found [here](https://github.com/qdrant/qdrant-spark/releases).
 
-### Building from source 🛠️
+### Building from source
 
 To build the `jar` from source, you need [JDK@8](https://www.azul.com/downloads/#zulu) and [Maven](https://maven.apache.org/) installed.
-Once the requirements have been satisfied, run the following command in the project root. 🛠️
+Once the requirements have been satisfied, run the following command in the project root.
 
 ```bash
 mvn package
@@ -22,11 +22,11 @@ mvn package
 
 This will build and store the fat JAR in the `target` directory by default.
 
-### Maven Central 📚
+### Maven Central
 
 For use with Java and Scala projects, the package can be found [here](https://central.sonatype.com/artifact/io.qdrant/spark).
 
-## Usage 📝
+## Usage
 
 ### Creating a Spark session (Single-node) with Qdrant support
 
@@ -42,7 +42,7 @@ spark = SparkSession.builder.config(
     .getOrCreate()
 ```
 
-### Loading data 📊
+### Loading data
 
 > [!IMPORTANT]
 > Before loading the data using this connector, a collection has to be [created](https://qdrant.tech/documentation/concepts/collections/#create-a-collection) in advance with the appropriate vector dimensions and configurations.
@@ -191,11 +191,11 @@ You can use the connector as a library in Databricks to ingest data into Qdrant.
 
 <img width="1064" alt="Screenshot 2024-01-05 at 17 20 01 (1)" src="https://github.com/qdrant/qdrant-spark/assets/46051506/d95773e0-c5c6-4ff2-bf50-8055bb08fd1b">
 
-## Datatype support 📋
+## Datatype support
 
-Qdrant supports all the Spark data types. The appropriate types are mapped based on the provided `schema`.
+The appropriate Spark data types are mapped to the Qdrant payload based on the provided `schema`.
 
-## Options and Spark types 🛠️
+## Options and Spark types
 
 | Option                       | Description                                                         | Column DataType               | Required |
 | :--------------------------- | :------------------------------------------------------------------ | :---------------------------- | :------- |
@@ -215,6 +215,6 @@ Qdrant supports all the Spark data types. The appropriate types are mapped based
 | `sparse_vector_names`        | Comma-separated names of the sparse vectors in the collection.      | -                             | ❌       |
 | `shard_key_selector`         | Comma-separated names of custom shard keys to use during upsert.    | -                             | ❌       |
 
-## LICENSE 📜
+## LICENSE
 
 Apache 2.0 © [2024](https://github.com/qdrant/qdrant-spark/blob/master/LICENSE)
