@@ -15,25 +15,25 @@ import org.apache.spark.sql.catalyst.InternalRow;
 import org.apache.spark.sql.types.StructType;
 
 public class QdrantVectorHandler {
-  static Vectors prepareVectors(InternalRow record, StructType schema, QdrantOptions options) {
 
+  public static Vectors prepareVectors(
+      InternalRow record, StructType schema, QdrantOptions options) {
     Vectors.Builder vectorsBuilder = Vectors.newBuilder();
-    Vectors sparseVectors = prepareSparseVectors(record, schema, options);
-    Vectors denseVectors = prepareDenseVectors(record, schema, options);
 
-    vectorsBuilder.mergeFrom(sparseVectors).mergeFrom(denseVectors);
+    // Combine sparse and dense vectors
+    vectorsBuilder.mergeFrom(prepareSparseVectors(record, schema, options));
+    vectorsBuilder.mergeFrom(prepareDenseVectors(record, schema, options));
 
-    if (options.embeddingField.isEmpty()) {
-      return vectorsBuilder.build();
+    // Maitaining support for the "embedding_field" and "vector_name" options
+    if (!options.embeddingField.isEmpty()) {
+      int embeddingFieldIndex = schema.fieldIndex(options.embeddingField);
+      float[] embeddings = record.getArray(embeddingFieldIndex).toFloatArray();
+      // 'options.vectorName' defaults to ""
+      vectorsBuilder.mergeFrom(
+          namedVectors(Collections.singletonMap(options.vectorName, vector(embeddings))));
     }
 
-    int vectorFieldIndex = schema.fieldIndex(options.embeddingField);
-    float[] embeddings = record.getArray(vectorFieldIndex).toFloatArray();
-
-    // The vector name defaults to ""
-    return vectorsBuilder
-        .mergeFrom(namedVectors(Collections.singletonMap(options.vectorName, vector(embeddings))))
-        .build();
+    return vectorsBuilder.build();
   }
 
   private static Vectors prepareSparseVectors(
@@ -41,17 +41,10 @@ public class QdrantVectorHandler {
     Map<String, Vector> sparseVectors = new HashMap<>();
 
     for (int i = 0; i < options.sparseVectorNames.length; i++) {
-      String sparseVectorName = options.sparseVectorNames[i];
-      String sparseVectorValueField = options.sparseVectorValueFields[i];
-      String sparseVectorIndexField = options.sparseVectorIndexFields[i];
-      int sparseVectorValueFieldIndex = schema.fieldIndex(sparseVectorValueField);
-      int sparseVectorIndexFieldIndex = schema.fieldIndex(sparseVectorIndexField);
-      List<Float> sparseVectorValues =
-          Floats.asList(record.getArray(sparseVectorValueFieldIndex).toFloatArray());
-      List<Integer> sparseVectorIndices =
-          Ints.asList(record.getArray(sparseVectorIndexFieldIndex).toIntArray());
-
-      sparseVectors.put(sparseVectorName, vector(sparseVectorValues, sparseVectorIndices));
+      String name = options.sparseVectorNames[i];
+      List<Float> values = extractFloatArray(record, schema, options.sparseVectorValueFields[i]);
+      List<Integer> indices = extractIntArray(record, schema, options.sparseVectorIndexFields[i]);
+      sparseVectors.put(name, vector(values, indices));
     }
 
     return namedVectors(sparseVectors);
@@ -62,14 +55,23 @@ public class QdrantVectorHandler {
     Map<String, Vector> denseVectors = new HashMap<>();
 
     for (int i = 0; i < options.vectorNames.length; i++) {
-      String vectorName = options.vectorNames[i];
-      String vectorField = options.vectorFields[i];
-      int vectorFieldIndex = schema.fieldIndex(vectorField);
-      float[] vectorValues = record.getArray(vectorFieldIndex).toFloatArray();
-
-      denseVectors.put(vectorName, vector(vectorValues));
+      String name = options.vectorNames[i];
+      List<Float> values = extractFloatArray(record, schema, options.vectorFields[i]);
+      denseVectors.put(name, vector(values));
     }
 
     return namedVectors(denseVectors);
+  }
+
+  private static List<Float> extractFloatArray(
+      InternalRow record, StructType schema, String fieldName) {
+    int fieldIndex = schema.fieldIndex(fieldName);
+    return Floats.asList(record.getArray(fieldIndex).toFloatArray());
+  }
+
+  private static List<Integer> extractIntArray(
+      InternalRow record, StructType schema, String fieldName) {
+    int fieldIndex = schema.fieldIndex(fieldName);
+    return Ints.asList(record.getArray(fieldIndex).toIntArray());
   }
 }

@@ -4,10 +4,6 @@ import java.io.Serializable;
 import org.apache.spark.sql.connector.write.WriteBuilder;
 import org.apache.spark.sql.types.StructType;
 
-/**
- * A builder for creating instances of {@link QdrantWrite}. Implements the {@link WriteBuilder}
- * interface and is serializable.
- */
 public class QdrantWriteBuilder implements WriteBuilder, Serializable {
 
   private final StructType schema;
