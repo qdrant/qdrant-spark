@@ -6,6 +6,8 @@ name: Maven and Python Tests
       - edited
       - synchronize
       - reopened
+  schedule:
+    - cron: 0 0 * * *
 
 jobs:
   test:
