@@ -183,6 +183,9 @@ The connector supports ingesting multiple named/unnamed, dense/sparse vectors.
 
 ## Databricks
 
+> [!TIP]
+> Check out our [example](https://qdrant.tech/documentation/examples/databricks/) of using the Spark connector with Databricks.
+
 You can use the connector as a library in Databricks to ingest data into Qdrant.
 
 - Go to the `Libraries` section in your cluster dashboard.
@@ -197,23 +200,23 @@ The appropriate Spark data types are mapped to the Qdrant payload based on the p
 
 ## Options and Spark types
 
-| Option                       | Description                                                         | Column DataType               | Required |
-| :--------------------------- | :------------------------------------------------------------------ | :---------------------------- | :------- |
-| `qdrant_url`                 | GRPC URL of the Qdrant instance. Eg: <http://localhost:6334>        | -                             | ✅       |
-| `collection_name`            | Name of the collection to write data into                           | -                             | ✅       |
-| `schema`                     | JSON string of the dataframe schema                                 | -                             | ✅       |
-| `embedding_field`            | Name of the column holding the embeddings                           | `ArrayType(FloatType)`        | ❌       |
-| `id_field`                   | Name of the column holding the point IDs. Default: Random UUID      | `StringType` or `IntegerType` | ❌       |
-| `batch_size`                 | Max size of the upload batch. Default: 64                           | -                             | ❌       |
-| `retries`                    | Number of upload retries. Default: 3                                | -                             | ❌       |
-| `api_key`                    | Qdrant API key for authentication                                   | -                             | ❌       |
-| `vector_name`                | Name of the vector in the collection.                               | -                             | ❌       |
-| `vector_fields`              | Comma-separated names of columns holding the vectors.               | `ArrayType(FloatType)`        | ❌       |
-| `vector_names`               | Comma-separated names of vectors in the collection.                 | -                             | ❌       |
-| `sparse_vector_index_fields` | Comma-separated names of columns holding the sparse vector indices. | `ArrayType(IntegerType)`      | ❌       |
-| `sparse_vector_value_fields` | Comma-separated names of columns holding the sparse vector values.  | `ArrayType(FloatType)`        | ❌       |
-| `sparse_vector_names`        | Comma-separated names of the sparse vectors in the collection.      | -                             | ❌       |
-| `shard_key_selector`         | Comma-separated names of custom shard keys to use during upsert.    | -                             | ❌       |
+| Option                       | Description                                                                          | Column DataType               | Required |
+| :--------------------------- | :----------------------------------------------------------------------------------- | :---------------------------- | :------- |
+| `qdrant_url`                 | GRPC URL of the Qdrant instance. Eg: <http://localhost:6334>                         | -                             | ✅       |
+| `collection_name`            | Name of the collection to write data into                                            | -                             | ✅       |
+| `schema`                     | JSON string of the dataframe schema                                                  | -                             | ✅       |
+| `embedding_field`            | Name of the column holding the embeddings (Deprecated - Use `vector_fields` instead) | `ArrayType(FloatType)`        | ❌       |
+| `id_field`                   | Name of the column holding the point IDs. Default: Random UUID                       | `StringType` or `IntegerType` | ❌       |
+| `batch_size`                 | Max size of the upload batch. Default: 64                                            | -                             | ❌       |
+| `retries`                    | Number of upload retries. Default: 3                                                 | -                             | ❌       |
+| `api_key`                    | Qdrant API key for authentication                                                    | -                             | ❌       |
+| `vector_name`                | Name of the vector in the collection.                                                | -                             | ❌       |
+| `vector_fields`              | Comma-separated names of columns holding the vectors.                                | `ArrayType(FloatType)`        | ❌       |
+| `vector_names`               | Comma-separated names of vectors in the collection.                                  | -                             | ❌       |
+| `sparse_vector_index_fields` | Comma-separated names of columns holding the sparse vector indices.                  | `ArrayType(IntegerType)`      | ❌       |
+| `sparse_vector_value_fields` | Comma-separated names of columns holding the sparse vector values.                   | `ArrayType(FloatType)`        | ❌       |
+| `sparse_vector_names`        | Comma-separated names of the sparse vectors in the collection.                       | -                             | ❌       |
+| `shard_key_selector`         | Comma-separated names of custom shard keys to use during upsert.                     | -                             | ❌       |
 
 ## LICENSE
 
