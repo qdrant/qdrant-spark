@@ -192,7 +192,8 @@ You can use the connector as a library in Databricks to ingest data into Qdrant.
 - Select `Install New` to open the library installation modal.
 - Search for `io.qdrant:spark:VERSION` in the Maven packages and click `Install`.
 
-<img width="1064" alt="Screenshot 2024-01-05 at 17 20 01 (1)" src="https://github.com/qdrant/qdrant-spark/assets/46051506/d95773e0-c5c6-4ff2-bf50-8055bb08fd1b">
+<img width="704" alt="Screenshot 2024-04-28 at 11 34 17 AM" src="https://github.com/qdrant/qdrant-spark/assets/46051506/0c1bd356-3fba-436a-90ce-d8ff39b02d1f">
+
 
 ## Datatype support
 
