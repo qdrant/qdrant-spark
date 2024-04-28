@@ -14,7 +14,6 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - '3.8'
           - '3.9'
           - '3.10'
           - '3.11'
@@ -42,6 +41,8 @@ jobs:
           python-version: '${{ matrix.python-version }}'
           cache: pip
       - name: Install Python test dependencies
-        run: pip install -r src/test/python/requirements.txt
+        run: |
+          pip install --upgrade pip
+          pip install -r src/test/python/requirements.txt
       - name: Run Python tests
         run: pytest
