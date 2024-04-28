@@ -5,7 +5,7 @@ from .schema import schema
 from .conftest import Qdrant
 
 current_directory = os.path.dirname(__file__)
-input_file_path = os.path.join(current_directory, '..', 'resources', 'users.json')
+input_file_path = os.path.join(current_directory, "..", "resources", "users.json")
 
 
 def test_upsert_unnamed_vectors(qdrant: Qdrant, spark_session: SparkSession):
@@ -14,12 +14,15 @@ def test_upsert_unnamed_vectors(qdrant: Qdrant, spark_session: SparkSession):
         .option("multiline", "true")
         .json(str(input_file_path))
     )
-    df.write.format("io.qdrant.spark.Qdrant").option(
-        "qdrant_url",
-        qdrant.url,
-    ).option("collection_name", qdrant.collection_name).option(
-        "embedding_field", "dense_vector"
-    ).mode("append").option("schema", df.schema.json()).save()
+    opts = {
+        "qdrant_url": qdrant.url,
+        "collection_name": qdrant.collection_name,
+        "embedding_field": "dense_vector",
+        "api_key": qdrant.api_key,
+        "schema": df.schema.json(),
+    }
+
+    df.write.format("io.qdrant.spark.Qdrant").options(**opts).mode("append").save()
 
     assert (
         qdrant.client.count(qdrant.collection_name).count == df.count()
@@ -32,14 +35,15 @@ def test_upsert_named_vectors(qdrant: Qdrant, spark_session: SparkSession):
         .option("multiline", "true")
         .json(str(input_file_path))
     )
-    df.write.format("io.qdrant.spark.Qdrant").option(
-        "qdrant_url",
-        qdrant.url,
-    ).option("collection_name", qdrant.collection_name).option(
-        "embedding_field", "dense_vector"
-    ).option("vector_name", "dense").option("schema", df.schema.json()).mode(
-        "append"
-    ).save()
+    opts = {
+        "qdrant_url": qdrant.url,
+        "collection_name": qdrant.collection_name,
+        "vector_name": "dense",
+        "schema": df.schema.json(),
+        "api_key": qdrant.api_key,
+    }
+
+    df.write.format("io.qdrant.spark.Qdrant").options(**opts).mode("append").save()
 
     assert (
         qdrant.client.count(qdrant.collection_name).count == df.count()
@@ -54,14 +58,16 @@ def test_upsert_multiple_named_dense_vectors(
         .option("multiline", "true")
         .json(str(input_file_path))
     )
-    df.write.format("io.qdrant.spark.Qdrant").option(
-        "qdrant_url",
-        qdrant.url,
-    ).option("collection_name", qdrant.collection_name).option(
-        "vector_fields", "dense_vector,dense_vector"
-    ).option("vector_names", "dense,another_dense").option(
-        "schema", df.schema.json()
-    ).mode("append").save()
+    opts = {
+        "qdrant_url": qdrant.url,
+        "collection_name": qdrant.collection_name,
+        "vector_fields": "dense_vector,dense_vector",
+        "vector_names": "dense,another_dense",
+        "schema": df.schema.json(),
+        "api_key": qdrant.api_key,
+    }
+
+    df.write.format("io.qdrant.spark.Qdrant").options(**opts).mode("append").save()
 
     assert (
         qdrant.client.count(qdrant.collection_name).count == df.count()
@@ -74,14 +80,17 @@ def test_upsert_sparse_vectors(qdrant: Qdrant, spark_session: SparkSession):
         .option("multiline", "true")
         .json(str(input_file_path))
     )
-    df.write.format("io.qdrant.spark.Qdrant").option(
-        "qdrant_url",
-        qdrant.url,
-    ).option("collection_name", qdrant.collection_name).option(
-        "sparse_vector_value_fields", "sparse_values"
-    ).option("sparse_vector_index_fields", "sparse_indices").option(
-        "sparse_vector_names", "sparse"
-    ).option("schema", df.schema.json()).mode("append").save()
+    opts = {
+        "qdrant_url": qdrant.url,
+        "collection_name": qdrant.collection_name,
+        "sparse_vector_value_fields": "sparse_values",
+        "sparse_vector_index_fields": "sparse_indices",
+        "sparse_vector_names": "sparse",
+        "schema": df.schema.json(),
+        "api_key": qdrant.api_key,
+    }
+
+    df.write.format("io.qdrant.spark.Qdrant").options(**opts).mode("append").save()
 
     assert (
         qdrant.client.count(qdrant.collection_name).count == df.count()
@@ -94,14 +103,17 @@ def test_upsert_multiple_sparse_vectors(qdrant: Qdrant, spark_session: SparkSess
         .option("multiline", "true")
         .json(str(input_file_path))
     )
-    df.write.format("io.qdrant.spark.Qdrant").option(
-        "qdrant_url",
-        qdrant.url,
-    ).option("collection_name", qdrant.collection_name).option(
-        "sparse_vector_value_fields", "sparse_values,sparse_values"
-    ).option("sparse_vector_index_fields", "sparse_indices,sparse_indices").option(
-        "sparse_vector_names", "sparse,another_sparse"
-    ).option("schema", df.schema.json()).mode("append").save()
+    opts = {
+        "qdrant_url": qdrant.url,
+        "collection_name": qdrant.collection_name,
+        "sparse_vector_value_fields": "sparse_values,sparse_values",
+        "sparse_vector_index_fields": "sparse_indices,sparse_indices",
+        "sparse_vector_names": "sparse,another_sparse",
+        "schema": df.schema.json(),
+        "api_key": qdrant.api_key,
+    }
+
+    df.write.format("io.qdrant.spark.Qdrant").options(**opts).mode("append").save()
 
     assert (
         qdrant.client.count(qdrant.collection_name).count == df.count()
@@ -114,16 +126,19 @@ def test_upsert_sparse_named_dense_vectors(qdrant: Qdrant, spark_session: SparkS
         .option("multiline", "true")
         .json(str(input_file_path))
     )
-    df.write.format("io.qdrant.spark.Qdrant").option(
-        "qdrant_url",
-        qdrant.url,
-    ).option("collection_name", qdrant.collection_name).option(
-        "vector_fields", "dense_vector"
-    ).option("vector_names", "dense").option(
-        "sparse_vector_value_fields", "sparse_values"
-    ).option("sparse_vector_index_fields", "sparse_indices").option(
-        "sparse_vector_names", "sparse"
-    ).option("schema", df.schema.json()).mode("append").save()
+    opts = {
+        "qdrant_url": qdrant.url,
+        "collection_name": qdrant.collection_name,
+        "embedding_field": "dense_vector",
+        "vector_name": "dense",
+        "sparse_vector_value_fields": "sparse_values",
+        "sparse_vector_index_fields": "sparse_indices",
+        "sparse_vector_names": "sparse",
+        "schema": df.schema.json(),
+        "api_key": qdrant.api_key,
+    }
+
+    df.write.format("io.qdrant.spark.Qdrant").options(**opts).mode("append").save()
 
     assert (
         qdrant.client.count(qdrant.collection_name).count == df.count()
@@ -138,16 +153,18 @@ def test_upsert_sparse_unnamed_dense_vectors(
         .option("multiline", "true")
         .json(str(input_file_path))
     )
-    df.write.format("io.qdrant.spark.Qdrant").option(
-        "qdrant_url",
-        qdrant.url,
-    ).option("collection_name", qdrant.collection_name).option(
-        "embedding_field", "dense_vector"
-    ).option("sparse_vector_value_fields", "sparse_values").option(
-        "sparse_vector_index_fields", "sparse_indices"
-    ).option("sparse_vector_names", "sparse").option("schema", df.schema.json()).mode(
-        "append"
-    ).save()
+    opts = {
+        "qdrant_url": qdrant.url,
+        "collection_name": qdrant.collection_name,
+        "embedding_field": "dense_vector",
+        "sparse_vector_value_fields": "sparse_values",
+        "sparse_vector_index_fields": "sparse_indices",
+        "sparse_vector_names": "sparse",
+        "schema": df.schema.json(),
+        "api_key": qdrant.api_key,
+    }
+
+    df.write.format("io.qdrant.spark.Qdrant").options(**opts).mode("append").save()
 
     assert (
         qdrant.client.count(qdrant.collection_name).count == df.count()
@@ -162,16 +179,19 @@ def test_upsert_multiple_sparse_dense_vectors(
         .option("multiline", "true")
         .json(str(input_file_path))
     )
-    df.write.format("io.qdrant.spark.Qdrant").option(
-        "qdrant_url",
-        qdrant.url,
-    ).option("collection_name", qdrant.collection_name).option(
-        "vector_fields", "dense_vector,dense_vector"
-    ).option("vector_names", "dense,another_dense").option(
-        "sparse_vector_value_fields", "sparse_values,sparse_values"
-    ).option("sparse_vector_index_fields", "sparse_indices,sparse_indices").option(
-        "sparse_vector_names", "sparse,another_sparse"
-    ).option("schema", df.schema.json()).mode("append").save()
+    opts = {
+        "qdrant_url": qdrant.url,
+        "collection_name": qdrant.collection_name,
+        "embedding_field": "dense_vector",
+        "vector_name": "dense",
+        "sparse_vector_value_fields": "sparse_values,sparse_values",
+        "sparse_vector_index_fields": "sparse_indices,sparse_indices",
+        "sparse_vector_names": "sparse,another_sparse",
+        "schema": df.schema.json(),
+        "api_key": qdrant.api_key,
+    }
+
+    df.write.format("io.qdrant.spark.Qdrant").options(**opts).mode("append").save()
 
     assert (
         qdrant.client.count(qdrant.collection_name).count == df.count()
@@ -185,12 +205,13 @@ def test_upsert_without_vectors(qdrant: Qdrant, spark_session: SparkSession):
         .option("multiline", "true")
         .json(str(input_file_path))
     )
-    df.write.format("io.qdrant.spark.Qdrant").option(
-        "qdrant_url",
-        qdrant.url,
-    ).option("collection_name", qdrant.collection_name).option(
-        "schema", df.schema.json()
-    ).mode("append").save()
+    opts = {
+        "qdrant_url": qdrant.url,
+        "collection_name": qdrant.collection_name,
+        "schema": df.schema.json(),
+        "api_key": qdrant.api_key,
+    }
+    df.write.format("io.qdrant.spark.Qdrant").options(**opts).mode("append").save()
 
     assert (
         qdrant.client.count(qdrant.collection_name).count == df.count()
@@ -204,18 +225,15 @@ def test_custom_id_field(qdrant: Qdrant, spark_session: SparkSession):
         .json(str(input_file_path))
     )
 
-    df = (
-        spark_session.read.schema(schema)
-        .option("multiline", "true")
-        .json(str(input_file_path))
-    )
-    df.write.format("io.qdrant.spark.Qdrant").option(
-        "qdrant_url",
-        qdrant.url,
-    ).option("collection_name", qdrant.collection_name).option(
-        "embedding_field", "dense_vector"
-    ).option("schema", df.schema.json()).option("vector_name", "dense").option(
-        "id_field", "id"
-    ).mode("append").save()
+    opts = {
+        "qdrant_url": qdrant.url,
+        "collection_name": qdrant.collection_name,
+        "embedding_field": "dense_vector",
+        "vector_name": "dense",
+        "id_field": "id",
+        "schema": df.schema.json(),
+        "api_key": qdrant.api_key,
+    }
+    df.write.format("io.qdrant.spark.Qdrant").options(**opts).mode("append").save()
 
     assert len(qdrant.client.retrieve(qdrant.collection_name, [1, 2, 3, 15, 18])) == 5
