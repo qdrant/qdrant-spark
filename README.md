@@ -49,6 +49,8 @@ spark = SparkSession.builder.config(
 
 The connector supports ingesting multiple named/unnamed, dense/sparse vectors.
 
+_Click each to expand._
+
 <details>
   <summary><b>Unnamed/Default vector</b></summary>
 
@@ -193,7 +195,6 @@ You can use the connector as a library in Databricks to ingest data into Qdrant.
 - Search for `io.qdrant:spark:VERSION` in the Maven packages and click `Install`.
 
 <img width="704" alt="Screenshot 2024-04-28 at 11 34 17 AM" src="https://github.com/qdrant/qdrant-spark/assets/46051506/0c1bd356-3fba-436a-90ce-d8ff39b02d1f">
-
 
 ## Datatype support
 

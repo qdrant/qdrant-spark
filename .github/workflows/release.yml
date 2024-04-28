@@ -49,7 +49,7 @@ jobs:
     - name: Semantic Release
       run: |
         bun install @conveyal/maven-semantic-release semantic-release @semantic-release/git conventional-changelog-conventionalcommits
-        bun x semantic-release --prepare @conveyal/maven-semantic-release,@semantic-release/git --publish @semantic-release/github,@conveyal/maven-semantic-release --verify-conditions @semantic-release/github,@conveyal/maven-semantic-release,@semantic-release/git --verify-release @conveyal/maven-semantic-release
+        bun x semantic-release --prepare @conveyal/maven-semantic-release --publish @semantic-release/github,@conveyal/maven-semantic-release --verify-conditions @semantic-release/github,@conveyal/maven-semantic-release --verify-release @conveyal/maven-semantic-release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GPG_KEY_NAME: ${{ secrets.GPG_KEY_NAME }}
