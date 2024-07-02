@@ -4,6 +4,8 @@ import io.qdrant.client.QdrantClient;
 import io.qdrant.client.QdrantGrpcClient;
 import io.qdrant.client.grpc.Collections.CreateCollection;
 import io.qdrant.client.grpc.Collections.Distance;
+import io.qdrant.client.grpc.Collections.MultiVectorComparator;
+import io.qdrant.client.grpc.Collections.MultiVectorConfig;
 import io.qdrant.client.grpc.Collections.SparseVectorConfig;
 import io.qdrant.client.grpc.Collections.SparseVectorParams;
 import io.qdrant.client.grpc.Collections.VectorParams;
@@ -69,6 +71,16 @@ public class TestIntegration {
                                 VectorParams.newBuilder()
                                     .setDistance(DISTANCE)
                                     .setSize(DIMENSION)
+                                    .build())
+                            .putMap(
+                                "multi",
+                                VectorParams.newBuilder()
+                                    .setSize(DIMENSION)
+                                    .setDistance(DISTANCE)
+                                    .setMultivectorConfig(
+                                        MultiVectorConfig.newBuilder()
+                                            .setComparator(MultiVectorComparator.MaxSim)
+                                            .build())
                                     .build())
                             .build())
                     .build())
@@ -250,6 +262,24 @@ public class TestIntegration {
         "testMultipleDenseAndSparseVectors()",
         (long) client.countAsync(COLLECTION_NAME).get(),
         df.count());
+  }
+
+  @Test
+  public void testMultiVector() throws InterruptedException, ExecutionException {
+
+    df.write()
+        .format("io.qdrant.spark.Qdrant")
+        .option("id_field", "id")
+        .option("schema", df.schema().json())
+        .option("collection_name", COLLECTION_NAME)
+        .option("multi_vector_fields", "multi")
+        .option("multi_vector_names", "multi")
+        .option("qdrant_url", qdrantUrl)
+        .mode("append")
+        .save();
+
+    Assert.assertEquals(
+        "testMultiVector()", (long) client.countAsync(COLLECTION_NAME).get(), df.count());
   }
 
   @Test

@@ -91,6 +91,9 @@ public class TestSchema {
         .add(new StructField("crypto", cryptoSchema, true, Metadata.empty()))
         .add(new StructField("dense_vector", denseVectorType, false, Metadata.empty()))
         .add(new StructField("sparse_indices", sparseIndicesType, false, Metadata.empty()))
-        .add(new StructField("sparse_values", sparseValuesType, false, Metadata.empty()));
+        .add(new StructField("sparse_values", sparseValuesType, false, Metadata.empty()))
+        .add(
+            new StructField(
+                "multi", DataTypes.createArrayType(denseVectorType), false, Metadata.empty()));
   }
 }

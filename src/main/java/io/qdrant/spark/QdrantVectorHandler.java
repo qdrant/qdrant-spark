@@ -1,5 +1,6 @@
 package io.qdrant.spark;
 
+import static io.qdrant.client.VectorFactory.multiVector;
 import static io.qdrant.client.VectorFactory.vector;
 import static io.qdrant.client.VectorsFactory.namedVectors;
 
@@ -11,6 +12,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.spark.sql.catalyst.InternalRow;
+import org.apache.spark.sql.catalyst.util.ArrayData;
 import org.apache.spark.sql.types.StructType;
 
 public class QdrantVectorHandler {
@@ -19,9 +21,10 @@ public class QdrantVectorHandler {
       InternalRow record, StructType schema, QdrantOptions options) {
     Vectors.Builder vectorsBuilder = Vectors.newBuilder();
 
-    // Combine sparse and dense vectors
+    // Combine sparse, dense and multi vectors
     vectorsBuilder.mergeFrom(prepareSparseVectors(record, schema, options));
     vectorsBuilder.mergeFrom(prepareDenseVectors(record, schema, options));
+    vectorsBuilder.mergeFrom(prepareMultiVectors(record, schema, options));
 
     // Maitaining support for the "embedding_field" and "vector_name" options
     if (!options.embeddingField.isEmpty()) {
@@ -62,6 +65,20 @@ public class QdrantVectorHandler {
     return namedVectors(denseVectors);
   }
 
+  private static Vectors prepareMultiVectors(
+      InternalRow record, StructType schema, QdrantOptions options) {
+    Map<String, Vector> multiVectors = new HashMap<>();
+
+    for (int i = 0; i < options.multiVectorNames.length; i++) {
+      String name = options.multiVectorNames[i];
+      float[][] vectors = extractMultiVecArray(record, schema, options.multiVectorFields[i]);
+
+      multiVectors.put(name, multiVector(vectors));
+    }
+
+    return namedVectors(multiVectors);
+  }
+
   private static float[] extractFloatArray(
       InternalRow record, StructType schema, String fieldName) {
     int fieldIndex = schema.fieldIndex(fieldName);
@@ -71,5 +88,21 @@ public class QdrantVectorHandler {
   private static int[] extractIntArray(InternalRow record, StructType schema, String fieldName) {
     int fieldIndex = schema.fieldIndex(fieldName);
     return record.getArray(fieldIndex).toIntArray();
+  }
+
+  private static float[][] extractMultiVecArray(
+      InternalRow record, StructType schema, String fieldName) {
+    int fieldIndex = schema.fieldIndex(fieldName);
+    ArrayData arrayData = record.getArray(fieldIndex);
+    int numRows = arrayData.numElements();
+    ArrayData firstRow = arrayData.getArray(0);
+    int numCols = firstRow.numElements();
+
+    float[][] multiVecArray = new float[numRows][numCols];
+    for (int i = 0; i < numRows; i++) {
+      multiVecArray[i] = arrayData.getArray(i).toFloatArray();
+    }
+
+    return multiVecArray;
   }
 }
