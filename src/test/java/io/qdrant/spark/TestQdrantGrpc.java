@@ -27,7 +27,7 @@ public class TestQdrantGrpc {
   private static int grpcPort = 6334;
   private static Distance distance = Distance.Cosine;
 
-  @Rule public final QdrantContainer qdrant = new QdrantContainer("qdrant/qdrant");
+  @Rule public final QdrantContainer qdrant = new QdrantContainer("qdrant/qdrant:dev");
 
   @Before
   public void setup() throws InterruptedException, ExecutionException {

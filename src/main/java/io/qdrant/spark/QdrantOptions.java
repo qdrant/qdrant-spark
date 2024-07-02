@@ -29,6 +29,8 @@ public class QdrantOptions implements Serializable {
   public final String[] sparseVectorNames;
   public final String[] vectorFields;
   public final String[] vectorNames;
+  public final String[] multiVectorFields;
+  public final String[] multiVectorNames;
   public final List<String> payloadFieldsToSkip;
   public final ShardKeySelector shardKeySelector;
 
@@ -49,6 +51,8 @@ public class QdrantOptions implements Serializable {
     sparseVectorNames = parseArray(options.get("sparse_vector_names"));
     vectorFields = parseArray(options.get("vector_fields"));
     vectorNames = parseArray(options.get("vector_names"));
+    multiVectorFields = parseArray(options.get("multi_vector_fields"));
+    multiVectorNames = parseArray(options.get("multi_vector_names"));
 
     shardKeySelector = parseShardKeys(options.get("shard_key_selector"));
 
@@ -121,6 +125,8 @@ public class QdrantOptions implements Serializable {
     fields.addAll(Arrays.asList(sparseVectorNames));
     fields.addAll(Arrays.asList(vectorFields));
     fields.addAll(Arrays.asList(vectorNames));
+    fields.addAll(Arrays.asList(multiVectorFields));
+    fields.addAll(Arrays.asList(multiVectorNames));
     return fields;
   }
 }
