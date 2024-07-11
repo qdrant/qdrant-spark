@@ -45,12 +45,15 @@ public class QdrantVectorHandler {
     Map<String, Vector> sparseVectors = new HashMap<>();
 
     for (int i = 0; i < options.sparseVectorNames.length; i++) {
-      String name = options.sparseVectorNames[i];
       int fieldIndex = schema.fieldIndex(options.sparseVectorValueFields[i]);
       StructField field = schema.fields()[fieldIndex];
       float[] values = extractFloatArray(record, fieldIndex, field.dataType());
+
+      fieldIndex = schema.fieldIndex(options.sparseVectorIndexFields[i]);
+      field = schema.fields()[fieldIndex];
       int[] indices = extractIntArray(record, fieldIndex, field.dataType());
 
+      String name = options.sparseVectorNames[i];
       sparseVectors.put(name, vector(Floats.asList(values), Ints.asList(indices)));
     }
 
@@ -62,10 +65,11 @@ public class QdrantVectorHandler {
     Map<String, Vector> denseVectors = new HashMap<>();
 
     for (int i = 0; i < options.vectorNames.length; i++) {
-      String name = options.vectorNames[i];
       int fieldIndex = schema.fieldIndex(options.vectorFields[i]);
       StructField field = schema.fields()[fieldIndex];
       float[] values = extractFloatArray(record, fieldIndex, field.dataType());
+
+      String name = options.vectorNames[i];
       denseVectors.put(name, vector(values));
     }
 
@@ -77,11 +81,11 @@ public class QdrantVectorHandler {
     Map<String, Vector> multiVectors = new HashMap<>();
 
     for (int i = 0; i < options.multiVectorNames.length; i++) {
-      String name = options.multiVectorNames[i];
       int fieldIndex = schema.fieldIndex(options.multiVectorFields[i]);
       StructField field = schema.fields()[fieldIndex];
       float[][] vectors = extractMultiVecArray(record, fieldIndex, field.dataType());
 
+      String name = options.multiVectorNames[i];
       multiVectors.put(name, multiVector(vectors));
     }
 
