@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.spark.sql.catalyst.InternalRow;
 import org.apache.spark.sql.catalyst.util.ArrayData;
+import org.apache.spark.sql.types.DataType;
+import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 
 public class QdrantVectorHandler {
@@ -20,7 +22,6 @@ public class QdrantVectorHandler {
   public static Vectors prepareVectors(
       InternalRow record, StructType schema, QdrantOptions options) {
     Vectors.Builder vectorsBuilder = Vectors.newBuilder();
-
     // Combine sparse, dense and multi vectors
     vectorsBuilder.mergeFrom(prepareSparseVectors(record, schema, options));
     vectorsBuilder.mergeFrom(prepareDenseVectors(record, schema, options));
@@ -28,7 +29,9 @@ public class QdrantVectorHandler {
 
     // Maitaining support for the "embedding_field" and "vector_name" options
     if (!options.embeddingField.isEmpty()) {
-      float[] embeddings = extractFloatArray(record, schema, options.embeddingField);
+      int fieldIndex = schema.fieldIndex(options.embeddingField);
+      StructField field = schema.fields()[fieldIndex];
+      float[] embeddings = extractFloatArray(record, fieldIndex, field.dataType());
       // 'options.vectorName' defaults to ""
       vectorsBuilder.mergeFrom(
           namedVectors(Collections.singletonMap(options.vectorName, vector(embeddings))));
@@ -42,10 +45,15 @@ public class QdrantVectorHandler {
     Map<String, Vector> sparseVectors = new HashMap<>();
 
     for (int i = 0; i < options.sparseVectorNames.length; i++) {
-      String name = options.sparseVectorNames[i];
-      float[] values = extractFloatArray(record, schema, options.sparseVectorValueFields[i]);
-      int[] indices = extractIntArray(record, schema, options.sparseVectorIndexFields[i]);
+      int fieldIndex = schema.fieldIndex(options.sparseVectorValueFields[i]);
+      StructField field = schema.fields()[fieldIndex];
+      float[] values = extractFloatArray(record, fieldIndex, field.dataType());
 
+      fieldIndex = schema.fieldIndex(options.sparseVectorIndexFields[i]);
+      field = schema.fields()[fieldIndex];
+      int[] indices = extractIntArray(record, fieldIndex, field.dataType());
+
+      String name = options.sparseVectorNames[i];
       sparseVectors.put(name, vector(Floats.asList(values), Ints.asList(indices)));
     }
 
@@ -57,8 +65,11 @@ public class QdrantVectorHandler {
     Map<String, Vector> denseVectors = new HashMap<>();
 
     for (int i = 0; i < options.vectorNames.length; i++) {
+      int fieldIndex = schema.fieldIndex(options.vectorFields[i]);
+      StructField field = schema.fields()[fieldIndex];
+      float[] values = extractFloatArray(record, fieldIndex, field.dataType());
+
       String name = options.vectorNames[i];
-      float[] values = extractFloatArray(record, schema, options.vectorFields[i]);
       denseVectors.put(name, vector(values));
     }
 
@@ -70,29 +81,42 @@ public class QdrantVectorHandler {
     Map<String, Vector> multiVectors = new HashMap<>();
 
     for (int i = 0; i < options.multiVectorNames.length; i++) {
-      String name = options.multiVectorNames[i];
-      float[][] vectors = extractMultiVecArray(record, schema, options.multiVectorFields[i]);
+      int fieldIndex = schema.fieldIndex(options.multiVectorFields[i]);
+      StructField field = schema.fields()[fieldIndex];
+      float[][] vectors = extractMultiVecArray(record, fieldIndex, field.dataType());
 
+      String name = options.multiVectorNames[i];
       multiVectors.put(name, multiVector(vectors));
     }
 
     return namedVectors(multiVectors);
   }
 
-  private static float[] extractFloatArray(
-      InternalRow record, StructType schema, String fieldName) {
-    int fieldIndex = schema.fieldIndex(fieldName);
+  private static float[] extractFloatArray(InternalRow record, int fieldIndex, DataType dataType) {
+
+    if (!dataType.typeName().equalsIgnoreCase("array")) {
+      throw new IllegalArgumentException("Vector field must be of type ArrayType");
+    }
+
     return record.getArray(fieldIndex).toFloatArray();
   }
 
-  private static int[] extractIntArray(InternalRow record, StructType schema, String fieldName) {
-    int fieldIndex = schema.fieldIndex(fieldName);
+  private static int[] extractIntArray(InternalRow record, int fieldIndex, DataType dataType) {
+
+    if (!dataType.typeName().equalsIgnoreCase("array")) {
+      throw new IllegalArgumentException("Vector field must be of type ArrayType");
+    }
+
     return record.getArray(fieldIndex).toIntArray();
   }
 
   private static float[][] extractMultiVecArray(
-      InternalRow record, StructType schema, String fieldName) {
-    int fieldIndex = schema.fieldIndex(fieldName);
+      InternalRow record, int fieldIndex, DataType dataType) {
+
+    if (!dataType.typeName().equalsIgnoreCase("array")) {
+      throw new IllegalArgumentException("Vector field must be of type ArrayType");
+    }
+
     ArrayData arrayData = record.getArray(fieldIndex);
     int numRows = arrayData.numElements();
     ArrayData firstRow = arrayData.getArray(0);
