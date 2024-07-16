@@ -89,6 +89,11 @@ def qdrant():
                 size=QDRANT_EMBEDDING_DIM,
                 distance=QDRANT_DISTANCE,
             ),
+            "multi": models.VectorParams(
+                size=QDRANT_EMBEDDING_DIM,
+                distance=QDRANT_DISTANCE,
+                multivector_config=models.MultiVectorConfig(comparator=models.MultiVectorComparator.MAX_SIM)
+            )
         },
         sparse_vectors_config={
             "sparse": models.SparseVectorParams(),

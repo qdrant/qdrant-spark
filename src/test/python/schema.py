@@ -102,5 +102,6 @@ schema = StructType(
         StructField("dense_vector", ArrayType(FloatType()), nullable=False),
         StructField("sparse_indices", ArrayType(IntegerType()), nullable=False),
         StructField("sparse_values", ArrayType(FloatType()), nullable=False),
+        StructField("multi", ArrayType(ArrayType(FloatType())), nullable=False),
     ]
 )
