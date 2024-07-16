@@ -6,7 +6,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.qdrant</groupId>
 	<artifactId>spark</artifactId>
-	<version>2.3.1</version>
+	<version>2.3.2</version>
 	<name>qdrant-spark</name>
 	<url>https://github.com/qdrant/qdrant-spark</url>
 	<description>An Apache Spark connector for the Qdrant vector database</description>
@@ -18,7 +18,7 @@
 	</licenses>
 	<developers>
 		<developer>
-			<name>Anush Shetty</name>
+			<name>Anush008</name>
 			<email>anush.shetty@qdrant.com</email>
 			<organization>Qdrant</organization>
 			<organizationUrl>http://qdrant.tech</organizationUrl>
