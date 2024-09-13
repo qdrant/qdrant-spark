@@ -1,16 +1,19 @@
 import pytest
-from testcontainers.qdrant import QdrantContainer
+from testcontainers.core.container import DockerContainer
 from qdrant_client import QdrantClient, models
 import uuid
 from pyspark.sql import SparkSession
 from typing import NamedTuple
 from uuid import uuid4
+from testcontainers.core.waiting_utils import wait_for_logs
 
 
 QDRANT_GRPC_PORT = 6334
 QDRANT_EMBEDDING_DIM = 6
 QDRANT_DISTANCE = models.Distance.COSINE
 QDRANT_API_KEY = uuid4().hex
+STRING_SHARD_KEY = "string_shard_key"
+INTEGER_SHARD_KEY = 876
 
 
 class Qdrant(NamedTuple):
@@ -20,7 +23,15 @@ class Qdrant(NamedTuple):
     client: QdrantClient
 
 
-qdrant_container = QdrantContainer(image="qdrant/qdrant:latest", api_key=QDRANT_API_KEY)
+qdrant_container = (
+    (
+        DockerContainer(image="qdrant/qdrant:latest")
+        .with_env("QDRANT__SERVICE__API_KEY", QDRANT_API_KEY)
+        .with_env("QDRANT__CLUSTER__ENABLED", "true")
+    )
+    .with_command("./qdrant --uri http://qdrant_node_1:6335")
+    .with_exposed_ports(QDRANT_GRPC_PORT)
+)
 
 
 # Reference: https://gist.github.com/dizzythinks/f3bb37fd8ab1484bfec79d39ad8a92d3
@@ -38,6 +49,7 @@ def get_pom_version():
 @pytest.fixture(scope="module", autouse=True)
 def setup_container(request):
     qdrant_container.start()
+    wait_for_logs(qdrant_container, "Qdrant gRPC listening on 6334")
 
     def remove_container():
         qdrant_container.stop()
@@ -92,14 +104,20 @@ def qdrant():
             "multi": models.VectorParams(
                 size=QDRANT_EMBEDDING_DIM,
                 distance=QDRANT_DISTANCE,
-                multivector_config=models.MultiVectorConfig(comparator=models.MultiVectorComparator.MAX_SIM)
-            )
+                multivector_config=models.MultiVectorConfig(
+                    comparator=models.MultiVectorComparator.MAX_SIM
+                ),
+            ),
         },
         sparse_vectors_config={
             "sparse": models.SparseVectorParams(),
             "another_sparse": models.SparseVectorParams(),
         },
+        sharding_method=models.ShardingMethod.CUSTOM,
     )
+    
+    client.create_shard_key(collection_name, STRING_SHARD_KEY)
+    client.create_shard_key(collection_name, INTEGER_SHARD_KEY)
 
     yield Qdrant(
         url=f"http://{host}:{grpc_port}",

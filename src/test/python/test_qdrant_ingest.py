@@ -2,7 +2,7 @@ import os
 from pyspark.sql import SparkSession
 
 from .schema import schema
-from .conftest import Qdrant
+from .conftest import Qdrant, STRING_SHARD_KEY, INTEGER_SHARD_KEY
 
 current_directory = os.path.dirname(__file__)
 input_file_path = os.path.join(current_directory, "..", "resources", "users.json")
@@ -20,12 +20,16 @@ def test_upsert_unnamed_vectors(qdrant: Qdrant, spark_session: SparkSession):
         "embedding_field": "dense_vector",
         "api_key": qdrant.api_key,
         "schema": df.schema.json(),
+        "shard_key_selector": STRING_SHARD_KEY,
     }
 
     df.write.format("io.qdrant.spark.Qdrant").options(**opts).mode("append").save()
 
     assert (
-        qdrant.client.count(qdrant.collection_name).count == df.count()
+        qdrant.client.count(
+            qdrant.collection_name, shard_key_selector=STRING_SHARD_KEY
+        ).count
+        == df.count()
     ), "Uploaded points count is not equal to the dataframe count"
 
 
@@ -41,12 +45,16 @@ def test_upsert_named_vectors(qdrant: Qdrant, spark_session: SparkSession):
         "vector_name": "dense",
         "schema": df.schema.json(),
         "api_key": qdrant.api_key,
+        "shard_key_selector": STRING_SHARD_KEY,
     }
 
     df.write.format("io.qdrant.spark.Qdrant").options(**opts).mode("append").save()
 
     assert (
-        qdrant.client.count(qdrant.collection_name).count == df.count()
+        qdrant.client.count(
+            qdrant.collection_name, shard_key_selector=STRING_SHARD_KEY
+        ).count
+        == df.count()
     ), "Uploaded points count is not equal to the dataframe count"
 
 
@@ -65,12 +73,16 @@ def test_upsert_multiple_named_dense_vectors(
         "vector_names": "dense,another_dense",
         "schema": df.schema.json(),
         "api_key": qdrant.api_key,
+        "shard_key_selector": STRING_SHARD_KEY,
     }
 
     df.write.format("io.qdrant.spark.Qdrant").options(**opts).mode("append").save()
 
     assert (
-        qdrant.client.count(qdrant.collection_name).count == df.count()
+        qdrant.client.count(
+            qdrant.collection_name, shard_key_selector=STRING_SHARD_KEY
+        ).count
+        == df.count()
     ), "Uploaded points count is not equal to the dataframe count"
 
 
@@ -88,12 +100,16 @@ def test_upsert_sparse_vectors(qdrant: Qdrant, spark_session: SparkSession):
         "sparse_vector_names": "sparse",
         "schema": df.schema.json(),
         "api_key": qdrant.api_key,
+        "shard_key_selector": STRING_SHARD_KEY,
     }
 
     df.write.format("io.qdrant.spark.Qdrant").options(**opts).mode("append").save()
 
     assert (
-        qdrant.client.count(qdrant.collection_name).count == df.count()
+        qdrant.client.count(
+            qdrant.collection_name, shard_key_selector=STRING_SHARD_KEY
+        ).count
+        == df.count()
     ), "Uploaded points count is not equal to the dataframe count"
 
 
@@ -111,12 +127,16 @@ def test_upsert_multiple_sparse_vectors(qdrant: Qdrant, spark_session: SparkSess
         "sparse_vector_names": "sparse,another_sparse",
         "schema": df.schema.json(),
         "api_key": qdrant.api_key,
+        "shard_key_selector": STRING_SHARD_KEY,
     }
 
     df.write.format("io.qdrant.spark.Qdrant").options(**opts).mode("append").save()
 
     assert (
-        qdrant.client.count(qdrant.collection_name).count == df.count()
+        qdrant.client.count(
+            qdrant.collection_name, shard_key_selector=STRING_SHARD_KEY
+        ).count
+        == df.count()
     ), "Uploaded points count is not equal to the dataframe count"
 
 
@@ -136,12 +156,16 @@ def test_upsert_sparse_named_dense_vectors(qdrant: Qdrant, spark_session: SparkS
         "sparse_vector_names": "sparse",
         "schema": df.schema.json(),
         "api_key": qdrant.api_key,
+        "shard_key_selector": STRING_SHARD_KEY,
     }
 
     df.write.format("io.qdrant.spark.Qdrant").options(**opts).mode("append").save()
 
     assert (
-        qdrant.client.count(qdrant.collection_name).count == df.count()
+        qdrant.client.count(
+            qdrant.collection_name, shard_key_selector=STRING_SHARD_KEY
+        ).count
+        == df.count()
     ), "Uploaded points count is not equal to the dataframe count"
 
 
@@ -162,12 +186,16 @@ def test_upsert_sparse_unnamed_dense_vectors(
         "sparse_vector_names": "sparse",
         "schema": df.schema.json(),
         "api_key": qdrant.api_key,
+        "shard_key_selector": INTEGER_SHARD_KEY,
     }
 
     df.write.format("io.qdrant.spark.Qdrant").options(**opts).mode("append").save()
 
     assert (
-        qdrant.client.count(qdrant.collection_name).count == df.count()
+        qdrant.client.count(
+            qdrant.collection_name, shard_key_selector=INTEGER_SHARD_KEY
+        ).count
+        == df.count()
     ), "Uploaded points count is not equal to the dataframe count"
 
 
@@ -189,17 +217,20 @@ def test_upsert_multiple_sparse_dense_vectors(
         "sparse_vector_names": "sparse,another_sparse",
         "schema": df.schema.json(),
         "api_key": qdrant.api_key,
+        "shard_key_selector": INTEGER_SHARD_KEY,
     }
 
     df.write.format("io.qdrant.spark.Qdrant").options(**opts).mode("append").save()
 
     assert (
-        qdrant.client.count(qdrant.collection_name).count == df.count()
+        qdrant.client.count(
+            qdrant.collection_name, shard_key_selector=INTEGER_SHARD_KEY
+        ).count
+        == df.count()
     ), "Uploaded points count is not equal to the dataframe count"
 
-def test_upsert_multi_vector(
-    qdrant: Qdrant, spark_session: SparkSession
-):
+
+def test_upsert_multi_vector(qdrant: Qdrant, spark_session: SparkSession):
     df = (
         spark_session.read.schema(schema)
         .option("multiline", "true")
@@ -212,12 +243,16 @@ def test_upsert_multi_vector(
         "multi_vector_names": "multi",
         "schema": df.schema.json(),
         "api_key": qdrant.api_key,
+        "shard_key_selector": INTEGER_SHARD_KEY,
     }
 
     df.write.format("io.qdrant.spark.Qdrant").options(**opts).mode("append").save()
 
     assert (
-        qdrant.client.count(qdrant.collection_name).count == df.count()
+        qdrant.client.count(
+            qdrant.collection_name, shard_key_selector=INTEGER_SHARD_KEY
+        ).count
+        == df.count()
     ), "Uploaded points count is not equal to the dataframe count"
 
 
@@ -233,11 +268,15 @@ def test_upsert_without_vectors(qdrant: Qdrant, spark_session: SparkSession):
         "collection_name": qdrant.collection_name,
         "schema": df.schema.json(),
         "api_key": qdrant.api_key,
+        "shard_key_selector": INTEGER_SHARD_KEY,
     }
     df.write.format("io.qdrant.spark.Qdrant").options(**opts).mode("append").save()
 
     assert (
-        qdrant.client.count(qdrant.collection_name).count == df.count()
+        qdrant.client.count(
+            qdrant.collection_name, shard_key_selector=INTEGER_SHARD_KEY
+        ).count
+        == df.count()
     ), "Uploaded points count is not equal to the dataframe count"
 
 
@@ -256,7 +295,27 @@ def test_custom_id_field(qdrant: Qdrant, spark_session: SparkSession):
         "id_field": "id",
         "schema": df.schema.json(),
         "api_key": qdrant.api_key,
+        "shard_key_selector": f"{STRING_SHARD_KEY},{INTEGER_SHARD_KEY}",
     }
     df.write.format("io.qdrant.spark.Qdrant").options(**opts).mode("append").save()
 
-    assert len(qdrant.client.retrieve(qdrant.collection_name, [1, 2, 3, 15, 18])) == 5
+    assert (
+        len(
+            qdrant.client.retrieve(
+                qdrant.collection_name,
+                [1, 2, 3, 15, 18],
+                shard_key_selector=INTEGER_SHARD_KEY,
+            )
+        )
+        == 5
+    )
+    assert (
+        len(
+            qdrant.client.retrieve(
+                qdrant.collection_name,
+                [1, 2, 3, 15, 18],
+                shard_key_selector=STRING_SHARD_KEY,
+            )
+        )
+        == 5
+    )
