@@ -12,7 +12,7 @@ QDRANT_GRPC_PORT = 6334
 QDRANT_EMBEDDING_DIM = 6
 QDRANT_DISTANCE = models.Distance.COSINE
 QDRANT_API_KEY = uuid4().hex
-STRING_SHARD_KEY = "string_shard_key"
+STRING_SHARD_KEY = "string_shard_key_32_()-"
 INTEGER_SHARD_KEY = 876
 
 
