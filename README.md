@@ -257,6 +257,7 @@ The appropriate Spark data types are mapped to the Qdrant payload based on the p
 | `multi_vector_fields`        | Comma-separated names of columns holding the multi-vector values.                    | `ArrayType(ArrayType(FloatType))` | ❌       |
 | `multi_vector_names`         | Comma-separated names of the multi-vectors in the collection.                        | -                                 | ❌       |
 | `shard_key_selector`         | Comma-separated names of custom shard keys to use during upsert.                     | -                                 | ❌       |
+| `wait`                       | Wait for each batch upsert to complete. `true` or `false`. Defaults to `true`.       | -                                 | ❌       |
 
 ## LICENSE
 

@@ -15,6 +15,7 @@ import javax.annotation.Nullable;
 public class QdrantOptions implements Serializable {
   private static final int DEFAULT_BATCH_SIZE = 64;
   private static final int DEFAULT_RETRIES = 3;
+  private static final boolean DEFAULT_WAIT = true;
 
   public final String qdrantUrl;
   public final String apiKey;
@@ -33,6 +34,7 @@ public class QdrantOptions implements Serializable {
   public final String[] multiVectorNames;
   public final List<String> payloadFieldsToSkip;
   public final ShardKeySelector shardKeySelector;
+  public final boolean wait;
 
   public QdrantOptions(Map<String, String> options) {
     Objects.requireNonNull(options);
@@ -45,6 +47,7 @@ public class QdrantOptions implements Serializable {
     apiKey = options.getOrDefault("api_key", "");
     embeddingField = options.getOrDefault("embedding_field", "");
     vectorName = options.getOrDefault("vector_name", "");
+    wait = getBooleanOption(options, "wait", DEFAULT_WAIT);
 
     sparseVectorValueFields = parseArray(options.get("sparse_vector_value_fields"));
     sparseVectorIndexFields = parseArray(options.get("sparse_vector_index_fields"));
@@ -64,6 +67,10 @@ public class QdrantOptions implements Serializable {
 
   private int getIntOption(Map<String, String> options, String key, int defaultValue) {
     return Integer.parseInt(options.getOrDefault(key, String.valueOf(defaultValue)));
+  }
+
+  private boolean getBooleanOption(Map<String, String> options, String key, boolean defaultValue) {
+    return Boolean.parseBoolean(options.getOrDefault(key, String.valueOf(defaultValue)));
   }
 
   private String[] parseArray(String input) {
