@@ -4,8 +4,10 @@
 
 ## Installation
 
+To integrate the connector into your Spark environment, get the JAR file from one of the sources listed below.
+
 > [!IMPORTANT]  
-> Requires Java 8 or above.
+> Ensure your system is running Java 8.
 
 ### GitHub Releases
 
@@ -20,11 +22,11 @@ Once the requirements have been satisfied, run the following command in the proj
 mvn package
 ```
 
-This will build and store the fat JAR in the `target` directory by default.
+The JAR file will be written into the `target` directory by default.
 
 ### Maven Central
 
-For use with Java and Scala projects, the package can be found [here](https://central.sonatype.com/artifact/io.qdrant/spark).
+Find the project on Maven Central [here](https://central.sonatype.com/artifact/io.qdrant/spark).
 
 ## Usage
 
@@ -257,6 +259,7 @@ The appropriate Spark data types are mapped to the Qdrant payload based on the p
 | `multi_vector_fields`        | Comma-separated names of columns holding the multi-vector values.                    | `ArrayType(ArrayType(FloatType))` | ❌       |
 | `multi_vector_names`         | Comma-separated names of the multi-vectors in the collection.                        | -                                 | ❌       |
 | `shard_key_selector`         | Comma-separated names of custom shard keys to use during upsert.                     | -                                 | ❌       |
+| `wait`                       | Wait for each batch upsert to complete. `true` or `false`. Defaults to `true`.       | -                                 | ❌       |
 
 ## LICENSE
 

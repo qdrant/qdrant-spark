@@ -68,7 +68,7 @@ public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
 
     // Instantiate QdrantGrpc client for each batch to maintain serializability
     QdrantGrpc qdrant = new QdrantGrpc(new URL(options.qdrantUrl), options.apiKey);
-    qdrant.upsert(options.collectionName, pointsBuffer, options.shardKeySelector);
+    qdrant.upsert(options.collectionName, pointsBuffer, options.shardKeySelector, options.wait);
     qdrant.close();
   }
 

@@ -68,8 +68,7 @@ public class TestQdrantGrpc {
     point2Builder.putPayload("rand_number", value(89));
     points.add(point2Builder.build());
 
-    // call the uploadBatch method
-    qdrantGrpc.upsert(collectionName, points, null);
+    qdrantGrpc.upsert(collectionName, points, null, true);
 
     qdrantGrpc.close();
   }

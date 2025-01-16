@@ -26,10 +26,16 @@ public class QdrantGrpc implements Serializable {
   }
 
   public void upsert(
-      String collectionName, List<PointStruct> points, ShardKeySelector shardKeySelector)
+      String collectionName,
+      List<PointStruct> points,
+      ShardKeySelector shardKeySelector,
+      boolean wait)
       throws InterruptedException, ExecutionException {
     UpsertPoints.Builder upsertPoints =
-        UpsertPoints.newBuilder().setCollectionName(collectionName).addAllPoints(points);
+        UpsertPoints.newBuilder()
+            .setCollectionName(collectionName)
+            .setWait(wait)
+            .addAllPoints(points);
     if (shardKeySelector != null) {
       upsertPoints.setShardKeySelector(shardKeySelector);
     }
