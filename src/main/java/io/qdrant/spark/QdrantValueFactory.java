@@ -50,7 +50,8 @@ public class QdrantValueFactory {
         InternalRow structData = record.getStruct(fieldIndex, structType.fields().length);
         return value(structData, structType);
       default:
-        return nullValue();
+        Object genericValue = record.get(fieldIndex, dataType);
+        return genericValue != null ? ValueFactory.value(genericValue.toString()) : nullValue();
     }
   }
 
