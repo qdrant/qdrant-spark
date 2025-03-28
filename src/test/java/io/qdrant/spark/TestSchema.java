@@ -94,6 +94,7 @@ public class TestSchema {
         .add(new StructField("sparse_values", sparseValuesType, false, Metadata.empty()))
         .add(
             new StructField(
-                "multi", DataTypes.createArrayType(denseVectorType), false, Metadata.empty()));
+                "multi", DataTypes.createArrayType(denseVectorType), false, Metadata.empty()))
+        .add(new StructField("timestamp", DataTypes.TimestampType, true, Metadata.empty()));
   }
 }
