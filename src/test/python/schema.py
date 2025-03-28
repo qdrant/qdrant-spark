@@ -6,6 +6,7 @@ from pyspark.sql.types import (
     DoubleType,
     ArrayType,
     FloatType,
+    TimestampType
 )
 
 hair_schema = StructType(
@@ -103,5 +104,6 @@ schema = StructType(
         StructField("sparse_indices", ArrayType(IntegerType()), nullable=False),
         StructField("sparse_values", ArrayType(FloatType()), nullable=False),
         StructField("multi", ArrayType(ArrayType(FloatType())), nullable=False),
+        StructField("timestamp", TimestampType(), nullable=False),
     ]
 )
