@@ -40,9 +40,25 @@ public class QdrantOptions implements Serializable {
     Objects.requireNonNull(options);
 
     qdrantUrl = options.get("qdrant_url");
+    if (qdrantUrl == null || qdrantUrl.isEmpty()) {
+      throw new IllegalArgumentException("qdrant_url option is required and cannot be empty");
+    }
+
     collectionName = options.get("collection_name");
+    if (collectionName == null || collectionName.isEmpty()) {
+      throw new IllegalArgumentException("collection_name option is required and cannot be empty");
+    }
+
     batchSize = getIntOption(options, "batch_size", DEFAULT_BATCH_SIZE);
+    if (batchSize <= 0) {
+      throw new IllegalArgumentException("batch_size must be positive, got: " + batchSize);
+    }
+
     retries = getIntOption(options, "retries", DEFAULT_RETRIES);
+    if (retries < 0) {
+      throw new IllegalArgumentException("retries cannot be negative, got: " + retries);
+    }
+
     idField = options.getOrDefault("id_field", "");
     apiKey = options.getOrDefault("api_key", "");
     embeddingField = options.getOrDefault("embedding_field", "");
@@ -61,12 +77,19 @@ public class QdrantOptions implements Serializable {
 
     validateSparseVectorFields();
     validateVectorFields();
+    validateMultiVectorFields();
 
     payloadFieldsToSkip = buildPayloadFieldsToSkip();
   }
 
   private int getIntOption(Map<String, String> options, String key, int defaultValue) {
-    return Integer.parseInt(options.getOrDefault(key, String.valueOf(defaultValue)));
+    String value = options.getOrDefault(key, String.valueOf(defaultValue));
+    try {
+      return Integer.parseInt(value);
+    } catch (NumberFormatException e) {
+      throw new IllegalArgumentException(
+          "Invalid value for option '" + key + "': '" + value + "'. Expected an integer.", e);
+    }
   }
 
   private boolean getBooleanOption(Map<String, String> options, String key, boolean defaultValue) {
@@ -74,9 +97,13 @@ public class QdrantOptions implements Serializable {
   }
 
   private String[] parseArray(String input) {
-    return input == null
-        ? new String[0]
-        : Arrays.stream(input.split(",")).map(String::trim).toArray(String[]::new);
+    if (input == null || input.trim().isEmpty()) {
+      return new String[0];
+    }
+    return Arrays.stream(input.split(","))
+        .map(String::trim)
+        .filter(s -> !s.isEmpty())
+        .toArray(String[]::new);
   }
 
   private void validateSparseVectorFields() {
@@ -90,6 +117,13 @@ public class QdrantOptions implements Serializable {
   private void validateVectorFields() {
     if (vectorFields.length != vectorNames.length) {
       throw new IllegalArgumentException("Vector fields and names should have the same length");
+    }
+  }
+
+  private void validateMultiVectorFields() {
+    if (multiVectorFields.length != multiVectorNames.length) {
+      throw new IllegalArgumentException(
+          "Multi vector fields and names should have the same length");
     }
   }
 

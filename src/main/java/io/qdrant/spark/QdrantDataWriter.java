@@ -51,25 +51,34 @@ public class QdrantDataWriter implements DataWriter<InternalRow>, Serializable {
 
     try {
       doWriteBatch();
-      pointsBuffer.clear();
     } catch (Exception e) {
-      LOG.error("Exception while uploading batch to Qdrant: {}", e.getMessage());
+      LOG.error("Exception while uploading batch to Qdrant", e);
       if (retries > 0) {
-        LOG.info("Retrying upload batch to Qdrant");
+        LOG.info("Retrying upload batch to Qdrant (retries remaining: {})", retries);
         writeBatch(retries - 1);
+        return;
       } else {
-        throw new RuntimeException(e);
+        pointsBuffer.clear();
+        throw new RuntimeException(
+            "Failed to write batch after " + (options.retries + 1) + " attempts", e);
       }
     }
+    pointsBuffer.clear();
   }
 
   private void doWriteBatch() throws Exception {
     LOG.info("Uploading batch of {} points to Qdrant", pointsBuffer.size());
 
     // Instantiate QdrantGrpc client for each batch to maintain serializability
-    QdrantGrpc qdrant = new QdrantGrpc(new URL(options.qdrantUrl), options.apiKey);
-    qdrant.upsert(options.collectionName, pointsBuffer, options.shardKeySelector, options.wait);
-    qdrant.close();
+    QdrantGrpc qdrant = null;
+    try {
+      qdrant = new QdrantGrpc(new URL(options.qdrantUrl), options.apiKey);
+      qdrant.upsert(options.collectionName, pointsBuffer, options.shardKeySelector, options.wait);
+    } finally {
+      if (qdrant != null) {
+        qdrant.close();
+      }
+    }
   }
 
   @Override

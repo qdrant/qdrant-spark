@@ -30,7 +30,18 @@ public class QdrantVectorHandler {
 
     // Maitaining support for the "embedding_field" and "vector_name" options
     if (!options.embeddingField.isEmpty()) {
-      int fieldIndex = schema.fieldIndex(options.embeddingField);
+      int fieldIndex;
+      try {
+        fieldIndex = schema.fieldIndex(options.embeddingField);
+      } catch (IllegalArgumentException e) {
+        throw new IllegalArgumentException(
+            "Embedding field '"
+                + options.embeddingField
+                + "' does not exist in the schema. "
+                + "Available fields: "
+                + String.join(", ", schema.fieldNames()),
+            e);
+      }
       StructField field = schema.fields()[fieldIndex];
       float[] embeddings = extractFloatArray(record, fieldIndex, field.dataType());
       // 'options.vectorName' defaults to ""
@@ -46,13 +57,46 @@ public class QdrantVectorHandler {
     Map<String, Vector> sparseVectors = new HashMap<>();
 
     for (int i = 0; i < options.sparseVectorNames.length; i++) {
-      int fieldIndex = schema.fieldIndex(options.sparseVectorValueFields[i]);
+      int fieldIndex;
+      try {
+        fieldIndex = schema.fieldIndex(options.sparseVectorValueFields[i]);
+      } catch (IllegalArgumentException e) {
+        throw new IllegalArgumentException(
+            "Sparse vector value field '"
+                + options.sparseVectorValueFields[i]
+                + "' does not exist in the schema. "
+                + "Available fields: "
+                + String.join(", ", schema.fieldNames()),
+            e);
+      }
       StructField field = schema.fields()[fieldIndex];
       float[] values = extractFloatArray(record, fieldIndex, field.dataType());
 
-      fieldIndex = schema.fieldIndex(options.sparseVectorIndexFields[i]);
+      try {
+        fieldIndex = schema.fieldIndex(options.sparseVectorIndexFields[i]);
+      } catch (IllegalArgumentException e) {
+        throw new IllegalArgumentException(
+            "Sparse vector index field '"
+                + options.sparseVectorIndexFields[i]
+                + "' does not exist in the schema. "
+                + "Available fields: "
+                + String.join(", ", schema.fieldNames()),
+            e);
+      }
       field = schema.fields()[fieldIndex];
       int[] indices = extractIntArray(record, fieldIndex, field.dataType());
+
+      if (values.length != indices.length) {
+        throw new IllegalArgumentException(
+            "Sparse vector '"
+                + options.sparseVectorNames[i]
+                + "' has mismatched dimensions: "
+                + "values array has "
+                + values.length
+                + " elements but indices array has "
+                + indices.length
+                + " elements. They must be equal.");
+      }
 
       String name = options.sparseVectorNames[i];
       sparseVectors.put(name, vector(Floats.asList(values), Ints.asList(indices)));
@@ -66,7 +110,18 @@ public class QdrantVectorHandler {
     Map<String, Vector> denseVectors = new HashMap<>();
 
     for (int i = 0; i < options.vectorNames.length; i++) {
-      int fieldIndex = schema.fieldIndex(options.vectorFields[i]);
+      int fieldIndex;
+      try {
+        fieldIndex = schema.fieldIndex(options.vectorFields[i]);
+      } catch (IllegalArgumentException e) {
+        throw new IllegalArgumentException(
+            "Vector field '"
+                + options.vectorFields[i]
+                + "' does not exist in the schema. "
+                + "Available fields: "
+                + String.join(", ", schema.fieldNames()),
+            e);
+      }
       StructField field = schema.fields()[fieldIndex];
       float[] values = extractFloatArray(record, fieldIndex, field.dataType());
 
@@ -82,7 +137,18 @@ public class QdrantVectorHandler {
     Map<String, Vector> multiVectors = new HashMap<>();
 
     for (int i = 0; i < options.multiVectorNames.length; i++) {
-      int fieldIndex = schema.fieldIndex(options.multiVectorFields[i]);
+      int fieldIndex;
+      try {
+        fieldIndex = schema.fieldIndex(options.multiVectorFields[i]);
+      } catch (IllegalArgumentException e) {
+        throw new IllegalArgumentException(
+            "Multi-vector field '"
+                + options.multiVectorFields[i]
+                + "' does not exist in the schema. "
+                + "Available fields: "
+                + String.join(", ", schema.fieldNames()),
+            e);
+      }
       StructField field = schema.fields()[fieldIndex];
       float[][] vectors = extractMultiVecArray(record, fieldIndex, field.dataType());
 
@@ -105,7 +171,23 @@ public class QdrantVectorHandler {
       throw new IllegalArgumentException("Expected array elements to be of FloatType");
     }
 
-    return record.getArray(fieldIndex).toFloatArray();
+    if (record.isNullAt(fieldIndex)) {
+      throw new IllegalArgumentException(
+          "Vector field at index "
+              + fieldIndex
+              + " is null. "
+              + "Vector fields cannot be null. Please ensure all vector fields have valid values.");
+    }
+
+    float[] array = record.getArray(fieldIndex).toFloatArray();
+    if (array.length == 0) {
+      throw new IllegalArgumentException(
+          "Vector field at index "
+              + fieldIndex
+              + " is empty. "
+              + "Vectors must have at least one dimension.");
+    }
+    return array;
   }
 
   private static int[] extractIntArray(InternalRow record, int fieldIndex, DataType dataType) {
@@ -120,7 +202,24 @@ public class QdrantVectorHandler {
       throw new IllegalArgumentException("Expected array elements to be of IntegerType");
     }
 
-    return record.getArray(fieldIndex).toIntArray();
+    if (record.isNullAt(fieldIndex)) {
+      throw new IllegalArgumentException(
+          "Vector index field at index "
+              + fieldIndex
+              + " is null. "
+              + "Vector index fields cannot be null. Please ensure all index fields have valid"
+              + " values.");
+    }
+
+    int[] array = record.getArray(fieldIndex).toIntArray();
+    if (array.length == 0) {
+      throw new IllegalArgumentException(
+          "Vector index field at index "
+              + fieldIndex
+              + " is empty. "
+              + "Index arrays must have at least one element.");
+    }
+    return array;
   }
 
   private static float[][] extractMultiVecArray(
@@ -136,14 +235,39 @@ public class QdrantVectorHandler {
       throw new IllegalArgumentException("Multi Vector elements must be of type ArrayType");
     }
 
+    if (record.isNullAt(fieldIndex)) {
+      throw new IllegalArgumentException(
+          "Multi-vector field at index "
+              + fieldIndex
+              + " is null. "
+              + "Multi-vector fields cannot be null. Please ensure all multi-vector fields have"
+              + " valid values.");
+    }
+
     ArrayData arrayData = record.getArray(fieldIndex);
     int numRows = arrayData.numElements();
-    ArrayData firstRow = arrayData.getArray(0);
-    int numCols = firstRow.numElements();
 
-    float[][] multiVecArray = new float[numRows][numCols];
+    if (numRows == 0) {
+      return new float[0][0];
+    }
+
+    float[][] multiVecArray = new float[numRows][];
     for (int i = 0; i < numRows; i++) {
       multiVecArray[i] = arrayData.getArray(i).toFloatArray();
+    }
+
+    int expectedCols = multiVecArray[0].length;
+    for (int i = 1; i < numRows; i++) {
+      if (multiVecArray[i].length != expectedCols) {
+        throw new IllegalArgumentException(
+            "Multi-vector rows must have uniform dimensions. Row 0 has "
+                + expectedCols
+                + " elements, but row "
+                + i
+                + " has "
+                + multiVecArray[i].length
+                + " elements.");
+      }
     }
 
     return multiVecArray;
