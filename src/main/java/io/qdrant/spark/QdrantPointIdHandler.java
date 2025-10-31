@@ -16,18 +16,57 @@ public class QdrantPointIdHandler {
       return id(UUID.randomUUID());
     }
 
-    int idFieldIndex = schema.fieldIndex(idField);
+    int idFieldIndex;
+    try {
+      idFieldIndex = schema.fieldIndex(idField);
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException(
+          "Field '"
+              + idField
+              + "' specified in 'id_field' does not exist in the schema. "
+              + "Available fields: "
+              + String.join(", ", schema.fieldNames()),
+          e);
+    }
+
     DataType idFieldType = schema.fields()[idFieldIndex].dataType();
     switch (idFieldType.typeName()) {
       case "string":
-        return id(UUID.fromString(record.getString(idFieldIndex)));
+        String idString = record.getString(idFieldIndex);
+        if (idString == null) {
+          throw new IllegalArgumentException(
+              "The 'id_field' contains a null value. IDs cannot be null. "
+                  + "Either provide valid ID values or remove 'id_field' option to use"
+                  + " auto-generated UUIDs.");
+        }
+        try {
+          return id(UUID.fromString(idString));
+        } catch (IllegalArgumentException e) {
+          throw new IllegalArgumentException(
+              "The 'id_field' value '"
+                  + idString
+                  + "' is not a valid UUID. "
+                  + "String IDs must be in UUID format (e.g.,"
+                  + " '550e8400-e29b-41d4-a716-446655440000'). "
+                  + "For non-UUID string IDs, consider using integer IDs or hashing your strings to"
+                  + " UUIDs.",
+              e);
+        }
 
       case "integer":
-      case "long":
         return id(record.getInt(idFieldIndex));
 
+      case "long":
+        return id(record.getLong(idFieldIndex));
+
       default:
-        throw new IllegalArgumentException("Point ID should be of type string or integer");
+        throw new IllegalArgumentException(
+            "Point ID field '"
+                + idField
+                + "' has unsupported type '"
+                + idFieldType.typeName()
+                + "'. "
+                + "Supported types: string (UUID format), integer, long");
     }
   }
 }

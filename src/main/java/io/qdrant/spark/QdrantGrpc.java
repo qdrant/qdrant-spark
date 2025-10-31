@@ -6,7 +6,6 @@ import io.qdrant.client.grpc.Points.PointStruct;
 import io.qdrant.client.grpc.Points.ShardKeySelector;
 import io.qdrant.client.grpc.Points.UpsertPoints;
 import java.io.Serializable;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -16,8 +15,14 @@ public class QdrantGrpc implements Serializable {
 
   private final QdrantClient client;
 
-  public QdrantGrpc(URL url, String apiKey) throws MalformedURLException {
+  public QdrantGrpc(URL url, String apiKey) {
+    if (url == null) {
+      throw new IllegalArgumentException("URL cannot be null");
+    }
     String host = url.getHost();
+    if (host == null || host.isEmpty()) {
+      throw new IllegalArgumentException("Invalid URL: host is missing. Provided URL: " + url);
+    }
     int port = url.getPort() == -1 ? 6334 : url.getPort();
     boolean useTls = url.getProtocol().equalsIgnoreCase("https");
     client =
