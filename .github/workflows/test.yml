@@ -11,6 +11,8 @@ name: Maven and Python Tests
 
 jobs:
   test:
+    permissions:
+      contents: read
     strategy:
       matrix:
         python-version:
