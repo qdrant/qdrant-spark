@@ -263,4 +263,4 @@ The appropriate Spark data types are mapped to the Qdrant payload based on the p
 
 ## LICENSE
 
-Apache 2.0 © [2024](https://github.com/qdrant/qdrant-spark/blob/master/LICENSE)
+[Apache 2.0](https://github.com/qdrant/qdrant-spark/blob/master/LICENSE)
