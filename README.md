@@ -6,9 +6,6 @@
 
 To integrate the connector into your Spark environment, get the JAR file from one of the sources listed below.
 
-> [!IMPORTANT]  
-> Ensure your system is running Java 8.
-
 ### GitHub Releases
 
 The packaged `jar` file can be found [here](https://github.com/qdrant/qdrant-spark/releases).
@@ -263,4 +260,4 @@ The appropriate Spark data types are mapped to the Qdrant payload based on the p
 
 ## LICENSE
 
-Apache 2.0 © [2024](https://github.com/qdrant/qdrant-spark/blob/master/LICENSE)
+[Apache 2.0](https://github.com/qdrant/qdrant-spark/blob/master/LICENSE)
