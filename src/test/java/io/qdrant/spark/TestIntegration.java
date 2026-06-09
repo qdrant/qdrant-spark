@@ -11,16 +11,27 @@ import io.qdrant.client.grpc.Collections.SparseVectorParams;
 import io.qdrant.client.grpc.Collections.VectorParams;
 import io.qdrant.client.grpc.Collections.VectorParamsMap;
 import io.qdrant.client.grpc.Collections.VectorsConfig;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import javax.security.auth.Subject;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.qdrant.QdrantContainer;
 
@@ -37,8 +48,26 @@ public class TestIntegration {
 
   @Rule public final QdrantContainer qdrant = new QdrantContainer("qdrant/qdrant");
 
+  private static MockedStatic<Subject> subjectMock;
+
+  // Subject.getSubject() was permanently removed in JDK 17.0.13+ (backported from JDK 24).
+  // Hadoop's UserGroupInformation.getCurrentUser() calls it unconditionally, so we stub it to
+  // return null — causing Hadoop to fall back to the pre-seeded loginUser instead.
+  @BeforeClass
+  public static void initHadoop() {
+    subjectMock = Mockito.mockStatic(Subject.class, Mockito.CALLS_REAL_METHODS);
+    subjectMock.when(() -> Subject.getSubject(Mockito.any())).thenReturn(null);
+    UserGroupInformation.setLoginUser(
+        UserGroupInformation.createRemoteUser(System.getProperty("user.name")));
+  }
+
+  @AfterClass
+  public static void closeHadoop() {
+    if (subjectMock != null) subjectMock.close();
+  }
+
   @Before
-  public void setup() throws InterruptedException, ExecutionException {
+  public void setup() throws InterruptedException, ExecutionException, IOException {
 
     qdrantUrl = String.join("", "http://", qdrant.getGrpcHostAddress());
 
@@ -93,12 +122,17 @@ public class TestIntegration {
     client.createCollectionAsync(collectionConfig).get();
     spark = SparkSession.builder().master("local[1]").appName("qdrant-spark").getOrCreate();
 
+    // Read via Java IO to avoid Hadoop FileSystem.get() calls in ForkJoin worker threads.
+    String json;
+    try (InputStream is = getClass().getResourceAsStream("/users.json")) {
+      json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+    }
     df =
         spark
             .read()
             .schema(TestSchema.schema())
             .option("multiline", "true")
-            .json(this.getClass().getResource("/users.json").toString());
+            .json(spark.createDataset(Collections.singletonList(json), Encoders.STRING()));
   }
 
   @After

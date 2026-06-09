@@ -1,4 +1,4 @@
-pyspark==3.5.1
+pyspark==3.5.2
 pytest==9.0.3
 qdrant-client==1.13.3
 testcontainers==4.4.0
