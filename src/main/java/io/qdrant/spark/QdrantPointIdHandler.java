@@ -2,7 +2,7 @@ package io.qdrant.spark;
 
 import static io.qdrant.client.PointIdFactory.id;
 
-import io.qdrant.client.grpc.Points.PointId;
+import io.qdrant.client.grpc.Common.PointId;
 import java.util.UUID;
 import org.apache.spark.sql.catalyst.InternalRow;
 import org.apache.spark.sql.types.DataType;
