@@ -53,6 +53,8 @@ jobs:
 
     - name: Semantic Release
       run: |
+        # @conveyal/maven-semantic-release requires ./maven-settings.xml, reuse the one setup-java writes
+        cp ~/.m2/settings.xml maven-settings.xml
         bun install @conveyal/maven-semantic-release semantic-release @semantic-release/git conventional-changelog-conventionalcommits
         bun x semantic-release --prepare @conveyal/maven-semantic-release --publish @semantic-release/github,@conveyal/maven-semantic-release --verify-conditions @semantic-release/github,@conveyal/maven-semantic-release --verify-release @conveyal/maven-semantic-release
       env:
@@ -65,3 +67,11 @@ jobs:
         GIT_COMMITTER_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
         GIT_AUTHOR_NAME: ${{ steps.author_info.outputs.AUTHOR_NAME }}
         GIT_AUTHOR_EMAIL: ${{ steps.author_info.outputs.AUTHOR_EMAIL }}
+
+    - name: Upload fat JAR
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        mvn clean package -DskipTests
+        VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+        gh release upload "v$VERSION" "target/spark-$VERSION.jar"
