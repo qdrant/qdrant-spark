@@ -17,6 +17,10 @@ updates:
           - "patch"
         patterns:
           - "*"
+    ignore:
+      # Must match the jackson-module-scala minor version bundled with Spark
+      - dependency-name: "com.fasterxml.jackson.core:jackson-databind"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
     cooldown:
       default-days: 7
   - package-ecosystem: "github-actions"
