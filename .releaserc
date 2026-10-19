@@ -59,6 +59,17 @@
                 ]
             }
         ],
-        "@semantic-release/release-notes-generator"
+        "@semantic-release/release-notes-generator",
+        "@semantic-release/github",
+        "@conveyal/maven-semantic-release",
+        [
+            "@semantic-release/git",
+            {
+                "assets": [
+                    "pom.xml"
+                ],
+                "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+            }
+        ]
     ]
 }
