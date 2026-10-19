@@ -44,7 +44,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-maven-
 
-    - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
       with:
         node-version: 22
 
@@ -65,3 +65,11 @@ jobs:
         GIT_COMMITTER_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
         GIT_AUTHOR_NAME: ${{ steps.author_info.outputs.AUTHOR_NAME }}
         GIT_AUTHOR_EMAIL: ${{ steps.author_info.outputs.AUTHOR_EMAIL }}
+
+    - name: Upload fat JAR
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        mvn clean package -DskipTests
+        VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+        gh release upload "v$VERSION" "target/spark-$VERSION.jar"
