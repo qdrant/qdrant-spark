@@ -52,7 +52,7 @@
 		<dependency>
 			<groupId>io.qdrant</groupId>
 			<artifactId>client</artifactId>
-			<version>1.19.0</version>
+			<version>1.20.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -62,7 +62,7 @@
 		<dependency>
 			<groupId>io.grpc</groupId>
 			<artifactId>grpc-protobuf</artifactId>
-			<version>1.85.0</version>
+			<version>1.85.1</version>
 		</dependency>
 
 		<!-- SPARK DEPENDENCIES -->
@@ -74,7 +74,7 @@
 		<dependency>
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-sql_2.13</artifactId>
-			<version>4.2.0</version>
+			<version>4.2.1</version>
 			<scope>provided</scope>
 			<exclusions>
 				<exclusion>
